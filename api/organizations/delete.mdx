@@ -1,0 +1,94 @@
+---
+title: "Delete Organization"
+openapi: "DELETE /api/organizations/{orgId}"
+description: "Delete an organization and all its data"
+---
+
+<ParamField path="orgId" type="string" required>
+  Organization ID
+</ParamField>
+
+## Request
+
+<CodeGroup>
+```bash cURL
+curl -X DELETE https://curlme.io/api/organizations/org_abc123 \
+  -H "x-api-key: cm_your_api_key"
+```
+
+```javascript JavaScript
+const response = await fetch('https://curlme.io/api/organizations/org_abc123', {
+  method: 'DELETE',
+  headers: { 'x-api-key': 'cm_your_api_key' }
+});
+// Status 204 = success
+```
+
+```python Python
+import requests
+
+response = requests.delete(
+    'https://curlme.io/api/organizations/org_abc123',
+    headers={'x-api-key': 'cm_your_api_key'}
+)
+# status_code 204 = success
+```
+</CodeGroup>
+
+## Response
+
+Returns `204 No Content` on success (empty body).
+
+## What Gets Deleted
+
+<Warning>
+  This action is **permanent and irreversible**. The following data is deleted:
+</Warning>
+
+- The organization itself
+- All bins in the organization
+- All requests in those bins
+- All response rules
+- All audit logs
+- All member associations
+
+## Permissions
+
+| Role | Can Delete |
+| ---- | ---------- |
+| **Owner** | ✅ Yes |
+| **Admin** | ❌ No |
+| **Member** | ❌ No |
+
+Only the organization **Owner** can delete it.
+
+## Restrictions
+
+### Personal Organizations
+
+Personal organizations cannot be deleted:
+
+```json
+{
+  "error": "Cannot delete personal organization"
+}
+```
+
+Your personal organization is automatically maintained as long as your account exists.
+
+## Before Deleting
+
+Consider:
+
+1. **Export data**: Download any important request data first
+2. **Notify members**: Let team members know before deletion
+3. **Update webhooks**: Redirect webhooks to new endpoints
+
+## Errors
+
+| Status | Description |
+| ------ | ----------- |
+| `400` | Cannot delete personal organization |
+| `401` | Unauthorized - Invalid or missing API key |
+| `403` | Forbidden - Only the Owner can delete |
+| `404` | Organization not found or you're not a member |

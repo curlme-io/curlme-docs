@@ -1,0 +1,284 @@
+---
+title: "Advanced Usage"
+description: "Power user tips and advanced CLI workflows"
+---
+
+## Scripting
+
+The CLI is designed for scripting. Use `--json` output and pipe to other tools.
+
+### Create and Capture Bin ID
+
+```bash
+# Create bin and extract public ID
+BIN_ID=$(curlme bin create test-bin --json 2>/dev/null | jq -r '.publicId')
+echo "Webhook URL: https://curlme.io/h/$BIN_ID"
+```
+
+### Poll for Requests
+
+```bash
+#!/bin/bash
+BIN_ID="abc123xyz"
+LAST_COUNT=0
+
+while true; do
+  COUNT=$(curlme bin list --json | jq ".[] | select(.publicId == \"$BIN_ID\") | .requestCount")
+  if [ "$COUNT" -gt "$LAST_COUNT" ]; then
+    echo "New request received!"
+    curlme latest "$BIN_ID"
+    LAST_COUNT=$COUNT
+  fi
+  sleep 2
+done
+```
+
+## CI/CD Integration
+
+### GitHub Actions
+
+```yaml
+name: Webhook Tests
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      
+      - name: Install curlme CLI
+        run: npm install -g @curlme/cli
+      
+      - name: Create test bin
+        env:
+          CURLME_API_KEY: ${{ secrets.CURLME_API_KEY }}
+        run: |
+          BIN_ID=$(curlme bin create ci-test-${{ github.run_id }} --json | jq -r '.publicId')
+          echo "BIN_ID=$BIN_ID" >> $GITHUB_ENV
+          echo "Webhook URL: https://curlme.io/h/$BIN_ID"
+      
+      - name: Run tests
+        run: npm test
+        env:
+          WEBHOOK_URL: https://curlme.io/h/${{ env.BIN_ID }}
+      
+      - name: Export captured requests
+        if: always()
+        env:
+          CURLME_API_KEY: ${{ secrets.CURLME_API_KEY }}
+        run: |
+          curlme export ${{ env.BIN_ID }} --format json > requests.json
+      
+      - name: Upload requests artifact
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: webhook-requests
+          path: requests.json
+      
+      - name: Cleanup
+        if: always()
+        env:
+          CURLME_API_KEY: ${{ secrets.CURLME_API_KEY }}
+        run: curlme bin delete ${{ env.BIN_ID }} --force
+```
+
+### GitLab CI
+
+```yaml
+webhook-tests:
+  image: node:18
+  variables:
+    CURLME_API_KEY: $CURLME_API_KEY
+  script:
+    - npm install -g @curlme/cli
+    - export BIN_ID=$(curlme bin create ci-test-$CI_PIPELINE_ID --json | jq -r '.publicId')
+    - echo "Webhook URL https://curlme.io/h/$BIN_ID"
+    - npm test
+    - curlme export $BIN_ID > requests.json
+  artifacts:
+    paths:
+      - requests.json
+  after_script:
+    - curlme bin delete $BIN_ID --force || true
+```
+
+## Docker
+
+### Dockerfile
+
+```dockerfile
+FROM node:18-alpine
+
+RUN npm install -g @curlme/cli
+
+ENV CURLME_API_KEY=""
+ENV CURLME_API_URL="https://curlme.io"
+
+ENTRYPOINT ["curlme"]
+```
+
+### Docker Compose
+
+```yaml
+services:
+  curlme:
+    build: .
+    environment:
+      - CURLME_API_KEY=${CURLME_API_KEY}
+    command: ["listen", "abc123xyz"]
+```
+
+## Multiple Bins Workflow
+
+Work with multiple bins efficiently:
+
+```bash
+# Create bins for different environments
+curlme bin create staging-webhooks
+curlme bin create production-webhooks
+
+# Quick switch between bins
+alias staging="curlme bin use staging-webhooks && curlme listen"
+alias production="curlme bin use production-webhooks && curlme listen"
+
+# Now just run:
+staging
+# or
+production
+```
+
+## Request Filtering
+
+### Filter in Real-time
+
+```bash
+# Only POST requests
+curlme listen --method POST
+
+# Only GET requests
+curlme listen --method GET
+```
+
+### Filter After Export
+
+```bash
+# Export and filter with jq
+curlme export --format json | jq '[.[] | select(.method == "POST")]'
+
+# Count by method
+curlme export --format json | jq 'group_by(.method) | map({method: .[0].method, count: length})'
+
+# Find requests with specific header
+curlme export --format json | jq '[.[] | select(.headers["stripe-signature"] != null)]'
+```
+
+## Replay Workflows
+
+### Replay to Multiple Targets
+
+```bash
+#!/bin/bash
+REQUEST_ID=$1
+TARGETS=("http://localhost:3000" "http://localhost:3001" "http://localhost:3002")
+
+for target in "${TARGETS[@]}"; do
+  echo "Replaying to $target..."
+  curlme replay "$REQUEST_ID" --to "$target"
+done
+```
+
+### Replay with Modifications
+
+The CLI replays requests as-is. For modifications, export and use curl:
+
+```bash
+# Export latest request
+curlme export --format curl > replay.sh
+
+# Edit the curl command
+nano replay.sh
+
+# Execute
+bash replay.sh
+```
+
+## Debugging Tips
+
+### Verbose Mode
+
+Currently, the CLI doesn't have a verbose flag. For debugging, check:
+
+```bash
+# Verify authentication
+curlme auth whoami
+
+# Check active bin
+curlme bin list
+
+# Test API connectivity
+curl -H "x-api-key: $CURLME_API_KEY" https://curlme.io/api/bins
+```
+
+### Common Issues
+
+| Issue | Solution |
+| ----- | -------- |
+| "No active bin" | Run `curlme bin use` to select one |
+| "Unauthorized" | Run `curlme auth login` |
+| "Bin not found" | Check the bin ID with `curlme bin list` |
+| Polling seems slow | Normal - polls every 1.5 seconds |
+
+## Shell Completion
+
+### Bash
+
+```bash
+# Add to ~/.bashrc
+eval "$(curlme completion bash)"
+```
+
+### Zsh
+
+```bash
+# Add to ~/.zshrc
+eval "$(curlme completion zsh)"
+```
+
+<Note>
+  Shell completion is planned for a future release.
+</Note>
+
+## Environment Variables Reference
+
+| Variable | Description | Default |
+| -------- | ----------- | ------- |
+| `CURLME_API_KEY` | Authentication key | Stored config |
+| `CURLME_API_URL` | API base URL | `https://curlme.io` |
+
+## Configuration File
+
+The CLI uses [conf](https://github.com/sindresorhus/conf) for storage.
+
+Location:
+- **macOS**: `~/Library/Preferences/curlme-cli-nodejs/config.json`
+- **Linux**: `~/.config/curlme-cli-nodejs/config.json`
+- **Windows**: `%APPDATA%\curlme-cli-nodejs\config.json`
+
+```json
+{
+  "apiKey": "cm_...",
+  "baseUrl": "https://curlme.io",
+  "activeBinId": "abc123xyz"
+}
+```
+
+<Warning>
+  Editing this file directly is not recommended. Use CLI commands instead.
+</Warning>

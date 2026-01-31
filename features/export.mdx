@@ -1,0 +1,250 @@
+---
+title: "Export & Code Generation"
+description: "Export request data and generate code snippets"
+---
+
+## Overview
+
+curlme.io provides multiple ways to export captured request data:
+
+- **JSON Export**: Full request data for archival or analysis
+- **Code Generation**: Ready-to-use snippets in 7+ languages
+- **cURL Export**: Reproduce requests from the command line
+
+## JSON Export
+
+### Via CLI
+
+Export all requests from a bin:
+
+```bash
+curlme export abc123 --format json
+```
+
+Output:
+```json
+[
+  {
+    "id": "clx1234567890",
+    "method": "POST",
+    "path": "/webhooks",
+    "headers": {
+      "content-type": "application/json",
+      "user-agent": "Stripe/1.0"
+    },
+    "query": {},
+    "body": "{\"event\": \"payment.completed\"}",
+    "timestamp": 1706745600000,
+    "size": 156,
+    "ip": "192.168.1.1"
+  }
+]
+```
+
+### Via API
+
+```bash
+curl "https://curlme.io/api/bins/abc123/export?format=json" \
+  -H "x-api-key: cm_your_api_key" \
+  -o requests.json
+```
+
+### Via Dashboard
+
+1. Open your bin
+2. Click **"Export"** button
+3. Select **"JSON"**
+4. Download the file
+
+## cURL Export
+
+Generate cURL commands to reproduce requests:
+
+### Via CLI
+
+```bash
+curlme export abc123 --format curl
+```
+
+Output:
+```bash
+curl -X POST 'https://example.com/webhooks' \
+  -H 'Content-Type: application/json' \
+  -H 'User-Agent: Stripe/1.0' \
+  -d '{"event": "payment.completed"}'
+```
+
+### Via Dashboard
+
+1. Select a request
+2. Click **"Copy as cURL"**
+
+## Code Generation
+
+Generate code snippets from any captured request in multiple languages.
+
+### Supported Languages
+
+| Language | Library |
+| -------- | ------- |
+| JavaScript | fetch |
+| JavaScript | axios |
+| Python | requests |
+| Python | http.client |
+| Go | net/http |
+| PHP | cURL |
+| Ruby | Net::HTTP |
+| Java | HttpURLConnection |
+| C# | HttpClient |
+
+### Via Dashboard
+
+1. Select a request
+2. Click **"Generate Code"**
+3. Choose your language
+4. Copy the snippet
+
+### Examples
+
+#### JavaScript (fetch)
+
+```javascript
+fetch('https://api.example.com/webhooks', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer sk_test_xxx'
+  },
+  body: JSON.stringify({
+    event: 'payment.completed',
+    data: { id: 'pi_123' }
+  })
+})
+  .then(response => response.json())
+  .then(data => console.log(data));
+```
+
+#### Python (requests)
+
+```python
+import requests
+
+response = requests.post(
+    'https://api.example.com/webhooks',
+    headers={
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer sk_test_xxx'
+    },
+    json={
+        'event': 'payment.completed',
+        'data': {'id': 'pi_123'}
+    }
+)
+
+print(response.json())
+```
+
+#### Go
+
+```go
+package main
+
+import (
+    "bytes"
+    "encoding/json"
+    "net/http"
+)
+
+func main() {
+    payload := map[string]interface{}{
+        "event": "payment.completed",
+        "data":  map[string]string{"id": "pi_123"},
+    }
+    
+    body, _ := json.Marshal(payload)
+    
+    req, _ := http.NewRequest("POST", "https://api.example.com/webhooks", bytes.NewBuffer(body))
+    req.Header.Set("Content-Type", "application/json")
+    req.Header.Set("Authorization", "Bearer sk_test_xxx")
+    
+    client := &http.Client{}
+    resp, _ := client.Do(req)
+    defer resp.Body.Close()
+}
+```
+
+#### PHP
+
+```php
+<?php
+$ch = curl_init();
+
+curl_setopt_array($ch, [
+    CURLOPT_URL => 'https://api.example.com/webhooks',
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_POST => true,
+    CURLOPT_HTTPHEADER => [
+        'Content-Type: application/json',
+        'Authorization: Bearer sk_test_xxx'
+    ],
+    CURLOPT_POSTFIELDS => json_encode([
+        'event' => 'payment.completed',
+        'data' => ['id' => 'pi_123']
+    ])
+]);
+
+$response = curl_exec($ch);
+curl_close($ch);
+
+echo $response;
+```
+
+## Batch Export
+
+Export multiple requests at once via the API:
+
+```bash
+curl "https://curlme.io/api/bins/abc123/requests?limit=100" \
+  -H "x-api-key: cm_your_api_key" \
+  -o requests.json
+```
+
+## Filtering Exports
+
+### By Time Range
+
+```bash
+curl "https://curlme.io/api/bins/abc123/requests?since=1706745600000" \
+  -H "x-api-key: cm_your_api_key"
+```
+
+### By Method
+
+Filter in your application after export, or use the dashboard filters.
+
+## Use Cases
+
+### Documentation
+
+Generate code examples for API documentation from real requests.
+
+### Testing
+
+Export requests to create test fixtures:
+
+```javascript
+// test/fixtures/stripe-webhook.json
+{
+  "method": "POST",
+  "headers": { "stripe-signature": "..." },
+  "body": { "event": "payment.completed" }
+}
+```
+
+### Debugging
+
+Share exported requests with teammates to reproduce issues.
+
+### Archival
+
+Export and store request logs for compliance or analysis.

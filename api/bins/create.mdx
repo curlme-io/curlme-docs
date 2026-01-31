@@ -1,0 +1,161 @@
+---
+title: "Create Bin"
+openapi: "POST /api/bins"
+description: "Create a new request bin"
+---
+
+<ParamField body="name" type="string">
+  Name for the bin. If not provided, a random name is generated.
+</ParamField>
+
+<ParamField body="organizationId" type="string">
+  Organization ID to create the bin in. If not provided, creates in your personal organization.
+</ParamField>
+
+## Request
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://curlme.io/api/bins \
+  -H "x-api-key: cm_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "My Webhook Bin"}'
+```
+
+```bash cURL (in organization)
+curl -X POST https://curlme.io/api/bins \
+  -H "x-api-key: cm_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Team Webhooks", "organizationId": "org_abc123"}'
+```
+
+```javascript JavaScript
+const response = await fetch('https://curlme.io/api/bins', {
+  method: 'POST',
+  headers: {
+    'x-api-key': 'cm_your_api_key',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({ name: 'My Webhook Bin' })
+});
+const bin = await response.json();
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    'https://curlme.io/api/bins',
+    headers={
+        'x-api-key': 'cm_your_api_key',
+        'Content-Type': 'application/json'
+    },
+    json={'name': 'My Webhook Bin'}
+)
+bin = response.json()
+```
+</CodeGroup>
+
+## Response
+
+<ResponseField name="id" type="string">
+  Internal bin ID
+</ResponseField>
+
+<ResponseField name="publicId" type="string">
+  Public identifier used in URLs. Use this in webhook URLs.
+</ResponseField>
+
+<ResponseField name="name" type="string">
+  Bin name
+</ResponseField>
+
+<ResponseField name="createdAt" type="number">
+  Unix timestamp (milliseconds) when the bin was created
+</ResponseField>
+
+<ResponseField name="customResponse" type="object">
+  Default response configuration
+  <Expandable>
+    <ResponseField name="statusCode" type="number">
+      HTTP status code (default: 200)
+    </ResponseField>
+    <ResponseField name="headers" type="object">
+      Response headers
+    </ResponseField>
+    <ResponseField name="body" type="string">
+      Response body
+    </ResponseField>
+    <ResponseField name="contentType" type="string">
+      Content-Type header
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="rules" type="array">
+  Response rules (empty on creation)
+</ResponseField>
+
+<ResponseField name="requestCount" type="number">
+  Number of requests (0 on creation)
+</ResponseField>
+
+<ResponseField name="userId" type="string">
+  Owner user ID
+</ResponseField>
+
+<ResponseField name="organizationId" type="string">
+  Organization ID (if created in an organization)
+</ResponseField>
+
+<ResponseField name="isTemporary" type="boolean">
+  Whether the bin is temporary (no owner)
+</ResponseField>
+
+```json Example Response
+{
+  "id": "clx1234567890abcdef",
+  "publicId": "abc123xyz",
+  "name": "My Webhook Bin",
+  "createdAt": 1706745600000,
+  "customResponse": {
+    "statusCode": 200,
+    "headers": {},
+    "body": "{\"status\": \"ok\", \"message\": \"Request received\"}",
+    "contentType": "application/json"
+  },
+  "rules": [],
+  "requestCount": 0,
+  "userId": "usr_abc123",
+  "organizationId": "org_def456",
+  "organizationName": "My Team",
+  "isTemporary": false,
+  "passwordProtected": false
+}
+```
+
+## Webhook URL
+
+After creating a bin, use this URL to receive webhooks:
+
+```
+https://curlme.io/h/{publicId}
+```
+
+Example:
+```
+https://curlme.io/h/abc123xyz
+```
+
+## Errors
+
+| Status | Description |
+| ------ | ----------- |
+| `401` | Unauthorized - Invalid or missing API key |
+| `500` | Failed to create bin |
+
+## Notes
+
+- If no `organizationId` is provided and you're authenticated, the bin is created in your personal organization
+- Anonymous bins (without authentication) are temporary and auto-delete after 24 hours
+- The `publicId` is a short, URL-friendly identifier used in webhook URLs

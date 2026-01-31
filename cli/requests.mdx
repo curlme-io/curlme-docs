@@ -1,0 +1,328 @@
+---
+title: "Request Commands"
+description: "Inspect, stream, and analyze captured requests"
+---
+
+## listen
+
+Stream incoming requests in real-time:
+
+```bash
+curlme listen [binId]
+```
+
+Alias: `curlme tail`
+
+### Arguments
+
+| Argument | Description | Default |
+| -------- | ----------- | ------- |
+| `binId` | Bin public ID | Active bin |
+
+### Options
+
+| Option | Description |
+| ------ | ----------- |
+| `--method <method>` | Filter by HTTP method |
+
+### Output
+
+```
+→ Listening on abc123xyz (active)
+  Waiting for requests…
+
+  [ Enter: inspect | R: replay | D: diff | O: open | Ctrl+C: quit ]
+
+→ POST   /webhooks          200    156B  rq_f8a3b2
+→ GET    /health            200     12B  rq_a1b2c3
+→ POST   /webhooks/stripe   200    892B  rq_d4e5f6
+```
+
+### Interactive Shortcuts
+
+| Key | Action |
+| --- | ------ |
+| `Enter` | Inspect the latest request in detail |
+| `R` | Replay latest request to localhost |
+| `D` | Diff latest vs previous request |
+| `O` | Open bin dashboard in browser |
+| `Ctrl+C` | Stop listening and exit |
+
+### Filter by Method
+
+```bash
+curlme listen --method POST
+```
+
+Only shows POST requests.
+
+---
+
+## latest
+
+Show the most recent request:
+
+```bash
+curlme latest [binId]
+```
+
+Alias: `curlme l`
+
+### Arguments
+
+| Argument | Description | Default |
+| -------- | ----------- | ------- |
+| `binId` | Bin public ID | Active bin |
+
+### Output
+
+```
+→ Request rq_f8a3b2
+  Method    POST
+  Path      /webhooks/stripe
+  Source    192.168.1.1
+  Size      156B
+
+  Headers
+    content-type application/json
+    user-agent   Stripe/1.0
+    stripe-sig   t=1234567890,v1=...
+
+  Body
+    {
+      "id": "evt_123",
+      "type": "payment_intent.succeeded",
+      "data": {
+        "object": {
+          "id": "pi_456",
+          "amount": 2000
+        }
+      }
+    }
+```
+
+---
+
+## show
+
+Inspect a specific request:
+
+```bash
+curlme show <requestId> [binId]
+```
+
+Alias: `curlme s`
+
+### Arguments
+
+| Argument | Description | Default |
+| -------- | ----------- | ------- |
+| `requestId` | Request ID or short ID | Required |
+| `binId` | Bin public ID | Active bin |
+
+### Request ID Formats
+
+The CLI accepts multiple ID formats:
+
+| Format | Example |
+| ------ | ------- |
+| Short ID | `rq_f8a3b2` |
+| Partial ID | `f8a3b2` |
+| Full ID | `clx1234567890abcdef` |
+
+### Example
+
+```bash
+curlme show rq_f8a3b2
+```
+
+Output is the same format as `curlme latest`.
+
+---
+
+## replay
+
+Replay a captured request to a local server:
+
+```bash
+curlme replay [requestId] [binId]
+```
+
+Alias: `curlme r`
+
+### Arguments
+
+| Argument | Description | Default |
+| -------- | ----------- | ------- |
+| `requestId` | Request ID | Latest request |
+| `binId` | Bin public ID | Active bin |
+
+### Options
+
+| Option | Description | Default |
+| ------ | ----------- | ------- |
+| `--to <url>` | Target URL | `http://localhost:3000` |
+
+### Examples
+
+```bash
+# Replay latest to default localhost:3000
+curlme replay
+
+# Replay specific request
+curlme replay rq_f8a3b2
+
+# Replay to custom URL
+curlme replay --to http://localhost:8080/api/webhook
+
+# Replay specific request to custom URL
+curlme replay rq_f8a3b2 --to http://localhost:8080
+```
+
+### Output
+
+```
+✔ Replayed rq_f8a3b2
+────────────────────────────────────────
+Target    http://localhost:3000/webhooks
+Status    200
+Duration  45ms
+```
+
+### Error Output
+
+```
+✖ Failed: connect ECONNREFUSED 127.0.0.1:3000
+```
+
+<Tip>
+  Make sure your local server is running before replaying requests.
+</Tip>
+
+---
+
+## diff
+
+Compare two requests side-by-side:
+
+```bash
+curlme diff [id1] [id2] [binId]
+```
+
+Alias: `curlme d`
+
+### Arguments
+
+| Argument | Description | Default |
+| -------- | ----------- | ------- |
+| `id1` | First request ID | Latest |
+| `id2` | Second request ID | Previous |
+| `binId` | Bin public ID | Active bin |
+
+### Examples
+
+```bash
+# Diff latest vs previous
+curlme diff
+
+# Diff specific requests
+curlme diff rq_f8a3b2 rq_a1b2c3
+
+# Diff with explicit bin
+curlme diff rq_f8a3b2 rq_a1b2c3 abc123xyz
+```
+
+### Output
+
+```
+➜ Diffing rq_f8a3b2 vs rq_a1b2c3
+
+  Body
+
+    - [Request 1 Body]
+    + [Request 2 Body]
+```
+
+If bodies are identical:
+
+```
+  Bodies are identical.
+```
+
+---
+
+## export
+
+Export request data from a bin:
+
+```bash
+curlme export [binId]
+```
+
+### Arguments
+
+| Argument | Description | Default |
+| -------- | ----------- | ------- |
+| `binId` | Bin public ID | Active bin |
+
+### Options
+
+| Option | Description | Default |
+| ------ | ----------- | ------- |
+| `--format <format>` | Export format | `json` |
+
+### Formats
+
+| Format | Description |
+| ------ | ----------- |
+| `json` | Full request data as JSON |
+| `curl` | cURL commands to reproduce |
+
+### JSON Export
+
+```bash
+curlme export --format json
+```
+
+```json
+[
+  {
+    "id": "clx1234567890",
+    "method": "POST",
+    "path": "/webhooks",
+    "headers": {...},
+    "body": "...",
+    "timestamp": 1706745600000
+  }
+]
+```
+
+### Save to File
+
+```bash
+curlme export --format json > requests.json
+```
+
+---
+
+## open
+
+Open the bin dashboard in your default browser:
+
+```bash
+curlme open [binId]
+```
+
+### Arguments
+
+| Argument | Description | Default |
+| -------- | ----------- | ------- |
+| `binId` | Bin public ID | Active bin |
+
+### Output
+
+```
+✔ Opening https://curlme.io/bin/abc123xyz
+```
+
+Your default browser opens to the bin's dashboard.

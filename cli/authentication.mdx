@@ -1,0 +1,167 @@
+---
+title: "CLI Authentication"
+description: "Authenticate the CLI with your curlme.io account"
+---
+
+## Getting an API Key
+
+Before using the CLI, you need an API key:
+
+1. Sign in at [curlme.io](https://curlme.io/auth/signin)
+2. Go to [Account Settings](https://curlme.io/account)
+3. Click **"Create New Key"** in the API Keys section
+4. Name it something like "CLI"
+5. Copy the key (it's only shown once!)
+
+## Login Command
+
+```bash
+curlme auth login
+```
+
+You'll be prompted to enter your API key:
+
+```
+Authenticate — generate key at https://curlme.io/account
+
+? Enter API Key: cm_a1b2c3d4e5f6...
+➜ Authenticated as you@example.com
+```
+
+## Verify Authentication
+
+Check who you're logged in as:
+
+```bash
+curlme auth whoami
+```
+
+```
+✔ Logged in as John Doe (john@example.com)
+```
+
+## Logout
+
+Remove stored credentials:
+
+```bash
+curlme auth logout
+```
+
+```
+✔ Logged out successfully.
+```
+
+## Credential Storage
+
+Your API key is stored securely in your system's configuration directory:
+
+| OS | Location |
+| -- | -------- |
+| macOS | `~/Library/Preferences/curlme-cli-nodejs/config.json` |
+| Linux | `~/.config/curlme-cli-nodejs/config.json` |
+| Windows | `%APPDATA%\curlme-cli-nodejs\config.json` |
+
+<Note>
+  The key is stored in plain text. Ensure your user directory has appropriate permissions.
+</Note>
+
+## Environment Variable
+
+Alternatively, set the API key via environment variable:
+
+```bash
+export CURLME_API_KEY=cm_your_api_key
+```
+
+The CLI checks environment variables before stored configuration, making this useful for:
+
+- CI/CD pipelines
+- Docker containers
+- Temporary overrides
+
+### CI/CD Example
+
+```yaml
+# GitHub Actions
+jobs:
+  test:
+    steps:
+      - name: Test webhooks
+        env:
+          CURLME_API_KEY: ${{ secrets.CURLME_API_KEY }}
+        run: |
+          npx @curlme/cli bin list
+```
+
+## Custom API Endpoint
+
+For self-hosted instances, override the API URL:
+
+```bash
+export CURLME_API_URL=https://curlme.mycompany.com
+```
+
+Or in your `.env` file:
+
+```
+CURLME_API_URL=http://localhost:3000
+```
+
+## Troubleshooting
+
+### "Unauthorized" Error
+
+```
+✖ Not authenticated
+Run: curlme auth login
+```
+
+**Causes:**
+1. Not logged in
+2. API key was revoked
+3. Key is invalid
+
+**Solution:**
+```bash
+curlme auth logout  # Clear old credentials
+curlme auth login   # Re-authenticate
+```
+
+### "Verifying..." Hangs
+
+If authentication verification takes too long:
+
+1. Check your internet connection
+2. Verify the API URL is accessible
+3. Try setting a custom timeout (not currently supported)
+
+### Multiple Accounts
+
+The CLI only supports one account at a time. To switch:
+
+```bash
+curlme auth logout
+curlme auth login  # Enter different API key
+```
+
+## Security Tips
+
+<Warning>
+  Never share your API key or commit it to version control.
+</Warning>
+
+<CardGroup cols={2}>
+  <Card title="Use Environment Variables" icon="leaf">
+    In scripts and CI/CD, use `CURLME_API_KEY` instead of hardcoding.
+  </Card>
+  <Card title="Separate Keys" icon="key">
+    Create different API keys for CLI, CI/CD, and scripts.
+  </Card>
+  <Card title="Rotate Regularly" icon="rotate">
+    Create new keys periodically and revoke old ones.
+  </Card>
+  <Card title="Monitor Usage" icon="eye">
+    Check "Last Used" timestamps in account settings.
+  </Card>
+</CardGroup>

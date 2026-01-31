@@ -1,68 +1,105 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "linden",
-  "name": "curlme.io docs",
+  "name": "curlme.io",
   "colors": {
-    "primary": "#ed7940",
+    "primary": "#F1976A",
     "light": "#ed7940",
-    "dark": "#ed7940"
+    "dark": "#E95C16"
   },
   "favicon": "/favicon.svg",
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "Documentation",
         "groups": [
           {
-            "group": "Getting started",
+            "group": "Getting Started",
             "pages": [
-              "index",
+              "introduction",
               "quickstart",
-              "development"
+              "concepts"
             ]
           },
           {
-            "group": "Customization",
+            "group": "Features",
             "pages": [
-              "essentials/settings",
-              "essentials/navigation"
+              "features/bins",
+              "features/custom-responses",
+              "features/response-rules",
+              "features/replay",
+              "features/export",
+              "features/organizations"
             ]
           },
           {
-            "group": "Writing content",
+            "group": "Security",
             "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/reusable-snippets"
-            ]
-          },
-          {
-            "group": "AI tools",
-            "pages": [
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
+              "security/authentication",
+              "security/api-keys",
+              "security/password-protection"
             ]
           }
         ]
       },
       {
-        "tab": "API reference",
+        "tab": "CLI",
         "groups": [
           {
-            "group": "API documentation",
+            "group": "CLI Reference",
             "pages": [
-              "api-reference/introduction"
+              "cli/introduction",
+              "cli/installation",
+              "cli/authentication",
+              "cli/bins",
+              "cli/requests",
+              "cli/advanced"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API",
+        "groups": [
+          {
+            "group": "API Reference",
+            "pages": [
+              "api/introduction",
+              "api/authentication"
             ]
           },
           {
-            "group": "Endpoint examples",
+            "group": "Bins",
             "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "api/bins/list",
+              "api/bins/create",
+              "api/bins/get",
+              "api/bins/update",
+              "api/bins/delete"
+            ]
+          },
+          {
+            "group": "Requests",
+            "pages": [
+              "api/requests/list",
+              "api/requests/webhook"
+            ]
+          },
+          {
+            "group": "Organizations",
+            "pages": [
+              "api/organizations/list",
+              "api/organizations/create",
+              "api/organizations/get",
+              "api/organizations/update",
+              "api/organizations/delete"
+            ]
+          },
+          {
+            "group": "User",
+            "pages": [
+              "api/user/me",
+              "api/user/keys"
             ]
           }
         ]
@@ -71,52 +108,48 @@
     "global": {
       "anchors": [
         {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
+          "anchor": "Website",
+          "href": "https://curlme.io",
+          "icon": "globe"
         },
         {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
+          "anchor": "Dashboard",
+          "href": "https://curlme.io/dashboard",
+          "icon": "chart-mixed"
+        },
+        {
+          "anchor": "GitHub",
+          "href": "https://github.com/curlme-io",
+          "icon": "github"
         }
       ]
     }
   },
-  "logo": "/logo/light.svg",
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/light.svg"
+  },
   "navbar": {
-    "links": [],
     "primary": {
       "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
+      "label": "Get Started",
+      "href": "https://curlme.io/auth/signin"
     }
   },
   "contextual": {
     "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
-   ]
+      "copy",
+      "view"
+    ]
   },
-  "footer": {
-    "socials": {
-      "github": "https://github.com/curlme-io"
+  "api": {
+    "baseUrl": "https://curlme.io",
+    "playground": {
+      "mode": "simple"
     }
   },
-  "appearance": {
-    "strict": true,
-    "default": "dark"
-  },
-  "background": {
-    "color": {
-      "light": "#000000"
-    },
-    "decoration": "windows"
+  "footerSocials": {
+    "github": "https://github.com/curlme-io",
+    "x": "https://x.com/curlmeio"
   }
 }

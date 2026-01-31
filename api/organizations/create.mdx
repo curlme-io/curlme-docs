@@ -1,0 +1,100 @@
+---
+title: "Create Organization"
+openapi: "POST /api/organizations"
+description: "Create a new organization"
+---
+
+<ParamField body="name" type="string" required>
+  Name for the organization
+</ParamField>
+
+## Request
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://curlme.io/api/organizations \
+  -H "x-api-key: cm_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "My Team"}'
+```
+
+```javascript JavaScript
+const response = await fetch('https://curlme.io/api/organizations', {
+  method: 'POST',
+  headers: {
+    'x-api-key': 'cm_your_api_key',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({ name: 'My Team' })
+});
+const organization = await response.json();
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    'https://curlme.io/api/organizations',
+    headers={
+        'x-api-key': 'cm_your_api_key',
+        'Content-Type': 'application/json'
+    },
+    json={'name': 'My Team'}
+)
+organization = response.json()
+```
+</CodeGroup>
+
+## Response
+
+<ResponseField name="id" type="string">
+  Organization ID
+</ResponseField>
+
+<ResponseField name="name" type="string">
+  Organization name
+</ResponseField>
+
+<ResponseField name="isPersonal" type="boolean">
+  Always `false` for created organizations
+</ResponseField>
+
+<ResponseField name="createdAt" type="string">
+  ISO 8601 timestamp
+</ResponseField>
+
+<ResponseField name="updatedAt" type="string">
+  ISO 8601 timestamp
+</ResponseField>
+
+```json Example Response
+{
+  "id": "org_xyz789",
+  "name": "My Team",
+  "isPersonal": false,
+  "createdAt": "2026-01-31T12:00:00.000Z",
+  "updatedAt": "2026-01-31T12:00:00.000Z"
+}
+```
+
+## Notes
+
+- You automatically become the **OWNER** of the new organization
+- Personal organizations cannot be created manually (auto-created on sign-in)
+- Organization names don't need to be unique
+
+## After Creation
+
+After creating an organization, you can:
+
+1. **Invite members**: Add teammates to collaborate
+2. **Create bins**: Create bins within the organization
+3. **Migrate bins**: Move existing bins to the organization
+
+## Errors
+
+| Status | Description |
+| ------ | ----------- |
+| `400` | Name is required |
+| `401` | Unauthorized - Invalid or missing API key |
+| `500` | Failed to create organization |

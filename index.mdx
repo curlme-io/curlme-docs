@@ -1,97 +1,112 @@
 ---
 title: "Introduction"
-description: "Welcome to the new home for your documentation"
+description: "Inspect, replay, and debug HTTP requests — straight from your terminal."
 ---
 
-## Setting up
+<img
+  className="block dark:hidden"
+  src="/images/hero-light.png"
+  alt="curlme.io Hero"
+/>
+<img
+  className="hidden dark:block"
+  src="/images/hero-dark.png"
+  alt="curlme.io Hero"
+/>
 
-Get your documentation site up and running in minutes.
+## What is curlme.io?
 
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
-</Card>
+**curlme.io** is a modern HTTP request inspection and debugging tool designed for developers who live in the terminal. Capture webhooks, debug API integrations, and inspect HTTP traffic with ease.
 
-## Make it yours
-
-Design a docs site that looks great and empowers your users.
-
-<Columns cols={2}>
+<CardGroup cols={2}>
   <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
+    title="Quickstart"
+    icon="rocket"
+    href="/quickstart"
   >
-    Edit your docs locally and preview them in real time.
+    Get up and running in under 2 minutes
   </Card>
   <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
-  >
-    Customize the design and colors of your site to match your brand.
-  </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
-  </Card>
-  <Card
-    title="API documentation"
+    title="CLI Reference"
     icon="terminal"
-    href="/api-reference/introduction"
+    href="/cli/introduction"
   >
-    Auto-generate API documentation from OpenAPI specifications.
-  </Card>
-</Columns>
-
-## Create beautiful pages
-
-Everything you need to create world-class documentation.
-
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
+    Terminal-first debugging experience
   </Card>
   <Card
-    title="Code samples"
+    title="API Reference"
     icon="code"
-    href="/essentials/code"
+    href="/api/introduction"
   >
-    Add sample code to demonstrate how to use your product.
+    Full REST API documentation
   </Card>
   <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
+    title="Features"
+    icon="sparkles"
+    href="/features/bins"
   >
-    Display images and other media.
+    Explore all features
   </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
-  </Card>
-</Columns>
+</CardGroup>
 
-## Need inspiration?
+## Key Features
 
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
+<AccordionGroup>
+  <Accordion icon="inbox" title="Request Bins">
+    Create unique endpoints to capture and inspect incoming HTTP requests. Each bin gets a dedicated URL that accepts any HTTP method.
+  </Accordion>
+  <Accordion icon="broadcast-tower" title="Real-time Streaming">
+    Watch requests arrive in real-time via the CLI or web dashboard. No refresh needed.
+  </Accordion>
+  <Accordion icon="reply" title="Request Replay">
+    Replay any captured request to a local development server for debugging.
+  </Accordion>
+  <Accordion icon="code" title="Code Generation">
+    Generate code snippets in 7+ programming languages from any captured request.
+  </Accordion>
+  <Accordion icon="sliders" title="Custom Responses">
+    Configure exactly what response your bin returns - status code, headers, and body.
+  </Accordion>
+  <Accordion icon="code-compare" title="Request Diffing">
+    Compare two requests side-by-side to spot differences.
+  </Accordion>
+  <Accordion icon="users" title="Organizations">
+    Collaborate with your team using shared organization bins.
+  </Accordion>
+</AccordionGroup>
+
+## Quick Example
+
+```bash
+# Install the CLI
+npm install -g @curlme/cli
+
+# Login with your API key
+curlme auth login
+
+# Create a new bin
+curlme bin create my-webhook
+
+# Start listening for requests
+curlme listen
+```
+
+Then send a request to your bin:
+
+```bash
+curl -X POST https://curlme.io/h/abc123 \
+  -H "Content-Type: application/json" \
+  -d '{"event": "user.created", "data": {"id": 1}}'
+```
+
+## Why curlme.io?
+
+| Feature | curlme.io | Others |
+| ------- | --------- | ------ |
+| Terminal CLI | ✅ Full-featured | ❌ Limited or none |
+| Real-time streaming | ✅ Yes | ⚠️ Polling |
+| Request replay | ✅ Built-in | ❌ Manual |
+| Code generation | ✅ 7+ languages | ⚠️ Limited |
+| Custom responses | ✅ Full control | ⚠️ Basic |
+| Self-hostable | ✅ Open source | ❌ Closed |
+| Free tier | ✅ Generous | ⚠️ Limited |

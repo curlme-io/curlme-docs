@@ -1,0 +1,97 @@
+---
+title: "List Organizations"
+openapi: "GET /api/organizations"
+description: "Retrieve all organizations you're a member of"
+---
+
+## Request
+
+<CodeGroup>
+```bash cURL
+curl https://curlme.io/api/organizations \
+  -H "x-api-key: cm_your_api_key"
+```
+
+```javascript JavaScript
+const response = await fetch('https://curlme.io/api/organizations', {
+  headers: { 'x-api-key': 'cm_your_api_key' }
+});
+const organizations = await response.json();
+```
+
+```python Python
+import requests
+
+response = requests.get(
+    'https://curlme.io/api/organizations',
+    headers={'x-api-key': 'cm_your_api_key'}
+)
+organizations = response.json()
+```
+</CodeGroup>
+
+## Response
+
+<ResponseField name="array" type="Organization[]">
+  <Expandable title="Organization object">
+    <ResponseField name="id" type="string">
+      Organization ID
+    </ResponseField>
+    <ResponseField name="name" type="string">
+      Organization name
+    </ResponseField>
+    <ResponseField name="isPersonal" type="boolean">
+      Whether this is your personal organization
+    </ResponseField>
+    <ResponseField name="createdAt" type="string">
+      ISO 8601 timestamp
+    </ResponseField>
+    <ResponseField name="updatedAt" type="string">
+      ISO 8601 timestamp
+    </ResponseField>
+    <ResponseField name="role" type="string">
+      Your role: `OWNER`, `ADMIN`, or `MEMBER`
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+```json Example Response
+[
+  {
+    "id": "org_abc123",
+    "name": "John's Personal Bins",
+    "isPersonal": true,
+    "createdAt": "2026-01-15T00:00:00.000Z",
+    "updatedAt": "2026-01-31T00:00:00.000Z",
+    "role": "OWNER"
+  },
+  {
+    "id": "org_def456",
+    "name": "Acme Corp",
+    "isPersonal": false,
+    "createdAt": "2026-01-20T00:00:00.000Z",
+    "updatedAt": "2026-01-30T00:00:00.000Z",
+    "role": "ADMIN"
+  },
+  {
+    "id": "org_ghi789",
+    "name": "Open Source Project",
+    "isPersonal": false,
+    "createdAt": "2026-01-25T00:00:00.000Z",
+    "updatedAt": "2026-01-25T00:00:00.000Z",
+    "role": "MEMBER"
+  }
+]
+```
+
+## Notes
+
+- Your **personal organization** is automatically created on first sign-in
+- The `role` field indicates your permission level in each organization
+- Organizations where you're a member but not yet active may not appear
+
+## Errors
+
+| Status | Description |
+| ------ | ----------- |
+| `401` | Unauthorized - Invalid or missing API key |

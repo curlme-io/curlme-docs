@@ -1,0 +1,214 @@
+---
+title: "Request Bins"
+description: "Create and manage request bins for capturing HTTP traffic"
+---
+
+## Overview
+
+Request bins are unique HTTP endpoints that capture and store all incoming requests. They're perfect for:
+
+- **Webhook debugging**: Inspect payloads from Stripe, GitHub, Twilio, etc.
+- **API development**: Test your integration before deploying
+- **Debugging**: Capture requests from mobile apps or IoT devices
+- **Demos**: Show clients exactly what data you're receiving
+
+## Creating a Bin
+
+### Via CLI
+
+```bash
+curlme bin create my-webhook-bin
+```
+
+### Via Dashboard
+
+1. Go to [curlme.io/dashboard](https://curlme.io/dashboard)
+2. Click **"Create New Bin"**
+3. Enter a name and click **"Create"**
+
+### Via API
+
+```bash
+curl -X POST https://curlme.io/api/bins \
+  -H "x-api-key: cm_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "my-webhook-bin"}'
+```
+
+## Bin Endpoints
+
+Each bin exposes two URLs:
+
+| URL | Purpose |
+| --- | ------- |
+| `https://curlme.io/h/{publicId}` | Webhook endpoint (accepts any HTTP method) |
+| `https://curlme.io/bin/{publicId}` | Dashboard view |
+
+### Short URL
+
+For convenience, you can use the short URL format:
+
+```
+https://curlme.io/h/abc123
+```
+
+This redirects to the full hook endpoint and captures all request data.
+
+## Supported Methods
+
+Bins accept all HTTP methods:
+
+- `GET`
+- `POST`
+- `PUT`
+- `PATCH`
+- `DELETE`
+- `OPTIONS`
+- `HEAD`
+
+## Captured Data
+
+Every request captures:
+
+<ResponseField name="method" type="string">
+  HTTP method (GET, POST, etc.)
+</ResponseField>
+
+<ResponseField name="path" type="string">
+  Request path including any sub-paths
+</ResponseField>
+
+<ResponseField name="headers" type="object">
+  All request headers
+</ResponseField>
+
+<ResponseField name="query" type="object">
+  Query string parameters
+</ResponseField>
+
+<ResponseField name="body" type="string">
+  Raw request body
+</ResponseField>
+
+<ResponseField name="contentType" type="string">
+  Content-Type header value
+</ResponseField>
+
+<ResponseField name="ip" type="string">
+  Client IP address
+</ResponseField>
+
+<ResponseField name="timestamp" type="number">
+  Unix timestamp in milliseconds
+</ResponseField>
+
+<ResponseField name="size" type="number">
+  Request body size in bytes
+</ResponseField>
+
+## Bin Settings
+
+### Name & Description
+
+Give your bin a meaningful name and optional description:
+
+```bash
+curlme bin update abc123 --name "Stripe Webhooks" --description "Production events"
+```
+
+### Retention
+
+Configure how long requests are stored:
+
+```json
+{
+  "retentionHours": 168  // 7 days
+}
+```
+
+Set to `0` for indefinite retention (plan limits apply).
+
+### Tags
+
+Organize bins with tags for filtering:
+
+```json
+{
+  "tags": ["production", "stripe", "payments"]
+}
+```
+
+## Listing Bins
+
+### CLI
+
+```bash
+curlme bin list
+```
+
+```
+Bins
+  → abc123xyz            Stripe Webhooks       42 reqs
+    def456uvw            GitHub Actions        15 reqs
+    ghi789rst            Development           3 reqs
+```
+
+### API
+
+```bash
+curl https://curlme.io/api/bins \
+  -H "x-api-key: cm_your_api_key"
+```
+
+## Deleting Bins
+
+<Warning>
+  Deleting a bin permanently removes all captured requests. This action cannot be undone.
+</Warning>
+
+### CLI
+
+```bash
+curlme bin delete abc123
+```
+
+### API
+
+```bash
+curl -X DELETE https://curlme.io/api/bins/abc123 \
+  -H "x-api-key: cm_your_api_key"
+```
+
+### Clear Requests Only
+
+To keep the bin but clear all requests:
+
+```bash
+curl -X DELETE "https://curlme.io/api/bins/abc123?clearRequests=true" \
+  -H "x-api-key: cm_your_api_key"
+```
+
+## Organization Bins
+
+Bins can belong to an organization for team sharing:
+
+```bash
+curl -X POST https://curlme.io/api/bins \
+  -H "x-api-key: cm_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Team Webhooks", "organizationId": "org_123"}'
+```
+
+All organization members can view and manage organization bins based on their role.
+
+## Temporary Bins
+
+Create bins without authentication for quick testing:
+
+```bash
+curl -X POST https://curlme.io/api/bins
+```
+
+<Note>
+  Temporary bins are deleted after 24 hours and have limited features.
+</Note>

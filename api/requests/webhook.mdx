@@ -1,0 +1,218 @@
+---
+title: "Webhook Endpoint"
+description: "Send HTTP requests to your bin for capture"
+---
+
+## Endpoint
+
+```
+https://curlme.io/h/{binId}
+```
+
+The webhook endpoint accepts **any HTTP method** and captures the full request.
+
+## URL Formats
+
+| Format | URL |
+| ------ | --- |
+| Standard | `https://curlme.io/h/abc123xyz` |
+| With path | `https://curlme.io/h/abc123xyz/webhooks/stripe` |
+| With query | `https://curlme.io/h/abc123xyz?source=production` |
+
+## Supported Methods
+
+All HTTP methods are supported:
+
+- `GET`
+- `POST`
+- `PUT`
+- `PATCH`
+- `DELETE`
+- `OPTIONS`
+- `HEAD`
+
+## Request Examples
+
+<CodeGroup>
+```bash cURL POST
+curl -X POST https://curlme.io/h/abc123xyz \
+  -H "Content-Type: application/json" \
+  -d '{"event": "user.created", "userId": "123"}'
+```
+
+```bash cURL GET
+curl https://curlme.io/h/abc123xyz?status=active
+```
+
+```bash cURL with headers
+curl -X POST https://curlme.io/h/abc123xyz \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: test123" \
+  -H "X-Request-Id: req_456" \
+  -d '{"data": "payload"}'
+```
+
+```javascript JavaScript
+fetch('https://curlme.io/h/abc123xyz', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-Custom-Header': 'value'
+  },
+  body: JSON.stringify({ event: 'test' })
+});
+```
+
+```python Python
+import requests
+
+requests.post(
+    'https://curlme.io/h/abc123xyz',
+    json={'event': 'test'},
+    headers={'X-Custom-Header': 'value'}
+)
+```
+</CodeGroup>
+
+## Response
+
+The response depends on the bin's configuration:
+
+### Default Response
+
+```json
+{
+  "status": "ok",
+  "message": "Request received"
+}
+```
+
+### Custom Response
+
+If configured, the bin returns your custom response:
+
+```
+HTTP/1.1 201 Created
+Content-Type: application/json
+X-Custom-Header: value
+
+{"created": true, "id": "123"}
+```
+
+### Response Rules
+
+If a response rule matches, that rule's response is returned instead.
+
+## Captured Data
+
+Every request captures:
+
+| Field | Description |
+| ----- | ----------- |
+| `method` | HTTP method |
+| `path` | URL path after `/h/{binId}` |
+| `headers` | All request headers |
+| `query` | Query string parameters |
+| `body` | Raw request body |
+| `contentType` | Content-Type header |
+| `ip` | Client IP address |
+| `timestamp` | When received |
+| `size` | Body size in bytes |
+
+## Path Handling
+
+Paths after the bin ID are captured:
+
+```bash
+curl https://curlme.io/h/abc123xyz/api/v1/users
+```
+
+Captured path: `/api/v1/users`
+
+## Content Types
+
+All content types are accepted:
+
+| Content-Type | Body Handling |
+| ------------ | ------------- |
+| `application/json` | Stored as-is |
+| `application/x-www-form-urlencoded` | Stored as-is |
+| `multipart/form-data` | Stored as-is (files included) |
+| `text/plain` | Stored as-is |
+| `application/xml` | Stored as-is |
+
+## Headers
+
+All headers are captured except:
+
+- Hop-by-hop headers (Connection, Keep-Alive, etc.)
+- Some proxy headers
+
+## IP Address
+
+The client IP is captured from:
+
+1. `X-Forwarded-For` header (if present)
+2. `X-Real-IP` header (if present)
+3. Direct connection IP
+
+## Size Limits
+
+| Plan | Max Body Size |
+| ---- | ------------- |
+| Free | 1 MB |
+| Pro | 10 MB |
+| Team | 50 MB |
+
+Requests exceeding the limit return `413 Payload Too Large`.
+
+## Real-time Updates
+
+After a request is captured:
+
+1. It's immediately stored
+2. Dashboard updates in real-time
+3. CLI `listen` command sees it
+4. Polling requests return it
+
+## Testing Your Integration
+
+### Stripe Webhooks
+
+Configure in Stripe Dashboard:
+```
+Webhook URL: https://curlme.io/h/abc123xyz
+```
+
+### GitHub Webhooks
+
+Configure in repository settings:
+```
+Payload URL: https://curlme.io/h/abc123xyz
+Content type: application/json
+```
+
+### Generic Testing
+
+```bash
+# Test POST
+curl -X POST https://curlme.io/h/abc123xyz \
+  -H "Content-Type: application/json" \
+  -d '{"test": true}'
+
+# Verify it was captured
+curl https://curlme.io/api/bins/abc123xyz/requests \
+  -H "x-api-key: cm_your_api_key"
+```
+
+## Errors
+
+| Status | Description |
+| ------ | ----------- |
+| `404` | Bin not found or deleted |
+| `413` | Request body too large |
+| `500` | Internal server error |
+
+<Note>
+  The webhook endpoint does **not** require authentication. Anyone with the URL can send requests.
+</Note>

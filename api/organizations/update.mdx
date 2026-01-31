@@ -1,0 +1,80 @@
+---
+title: "Update Organization"
+openapi: "PATCH /api/organizations/{orgId}"
+description: "Update organization settings"
+---
+
+<ParamField path="orgId" type="string" required>
+  Organization ID
+</ParamField>
+
+<ParamField body="name" type="string">
+  New name for the organization
+</ParamField>
+
+## Request
+
+<CodeGroup>
+```bash cURL
+curl -X PATCH https://curlme.io/api/organizations/org_abc123 \
+  -H "x-api-key: cm_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "New Organization Name"}'
+```
+
+```javascript JavaScript
+const response = await fetch('https://curlme.io/api/organizations/org_abc123', {
+  method: 'PATCH',
+  headers: {
+    'x-api-key': 'cm_your_api_key',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({ name: 'New Organization Name' })
+});
+const organization = await response.json();
+```
+
+```python Python
+import requests
+
+response = requests.patch(
+    'https://curlme.io/api/organizations/org_abc123',
+    headers={
+        'x-api-key': 'cm_your_api_key',
+        'Content-Type': 'application/json'
+    },
+    json={'name': 'New Organization Name'}
+)
+organization = response.json()
+```
+</CodeGroup>
+
+## Response
+
+Returns the updated organization:
+
+```json Example Response
+{
+  "id": "org_abc123",
+  "name": "New Organization Name",
+  "isPersonal": false,
+  "createdAt": "2026-01-15T00:00:00.000Z",
+  "updatedAt": "2026-01-31T12:00:00.000Z"
+}
+```
+
+## Permissions
+
+| Role | Can Update |
+| ---- | ---------- |
+| **Owner** | ✅ Yes |
+| **Admin** | ✅ Yes |
+| **Member** | ❌ No |
+
+## Errors
+
+| Status | Description |
+| ------ | ----------- |
+| `401` | Unauthorized - Invalid or missing API key |
+| `403` | Forbidden - Insufficient permissions (not Owner or Admin) |
+| `404` | Organization not found or you're not a member |

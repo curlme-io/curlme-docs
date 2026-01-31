@@ -1,0 +1,131 @@
+---
+title: "CLI Introduction"
+description: "Terminal-first HTTP request debugging with the curlme CLI"
+---
+
+## Overview
+
+The curlme CLI brings the full power of curlme.io to your terminal. Stream requests in real-time, replay webhooks, diff payloads, and more—all without leaving your workflow.
+
+## Features
+
+<CardGroup cols={2}>
+  <Card title="Real-time Streaming" icon="broadcast-tower">
+    Watch requests arrive as they happen with `curlme listen`
+  </Card>
+  <Card title="Interactive Mode" icon="keyboard">
+    Keyboard shortcuts for instant inspection and replay
+  </Card>
+  <Card title="Request Replay" icon="reply">
+    Forward captured requests to your local server
+  </Card>
+  <Card title="Diff Comparison" icon="code-compare">
+    Compare two requests side-by-side
+  </Card>
+</CardGroup>
+
+## Quick Reference
+
+### Authentication
+
+```bash
+curlme auth login      # Authenticate with API key
+curlme auth whoami     # Show current user
+curlme auth logout     # Remove stored credentials
+```
+
+### Bin Management
+
+```bash
+curlme bin list        # List all bins
+curlme bin create      # Create a new bin
+curlme bin use         # Set active bin
+curlme bin info        # Show bin details
+curlme bin delete      # Delete a bin
+```
+
+### Request Inspection
+
+```bash
+curlme listen          # Stream requests in real-time
+curlme latest          # Show most recent request
+curlme show <id>       # Inspect specific request
+```
+
+### Advanced
+
+```bash
+curlme replay <id>     # Replay request locally
+curlme diff <a> <b>    # Compare two requests
+curlme export          # Export request data
+curlme open            # Open dashboard in browser
+```
+
+## Interactive Mode
+
+When running `curlme listen`, use these keyboard shortcuts:
+
+| Key | Action |
+| --- | ------ |
+| `Enter` | Inspect the latest request |
+| `R` | Replay latest to localhost |
+| `D` | Diff latest vs previous |
+| `O` | Open bin in browser |
+| `Ctrl+C` | Quit |
+
+## Output Styles
+
+The CLI uses color-coded output for easy scanning:
+
+```
+→ POST   /webhooks/stripe   200    156B  rq_f8a3b2
+→ GET    /health            200     12B  rq_a1b2c3
+→ POST   /webhooks/github   200    892B  rq_d4e5f6
+```
+
+| Color | Meaning |
+| ----- | ------- |
+| Yellow `→` | Incoming request indicator |
+| Green | GET method |
+| Yellow | POST/PUT/PATCH methods |
+| Red | DELETE method |
+| Dim | Metadata (size, timestamps) |
+
+## Configuration
+
+The CLI stores configuration in your system's config directory:
+
+| OS | Path |
+| -- | ---- |
+| macOS | `~/Library/Preferences/curlme-cli-nodejs/` |
+| Linux | `~/.config/curlme-cli-nodejs/` |
+| Windows | `%APPDATA%\curlme-cli-nodejs\` |
+
+### Stored Settings
+
+- `apiKey` - Your authentication key
+- `activeBinId` - Currently selected bin
+- `baseUrl` - API endpoint (default: https://curlme.io)
+
+## Environment Variables
+
+| Variable | Description | Default |
+| -------- | ----------- | ------- |
+| `CURLME_API_URL` | Override API endpoint | `https://curlme.io` |
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Installation" icon="download" href="/cli/installation">
+    Install the CLI on your system
+  </Card>
+  <Card title="Authentication" icon="key" href="/cli/authentication">
+    Set up your API key
+  </Card>
+  <Card title="Bin Commands" icon="inbox" href="/cli/bins">
+    Create and manage bins
+  </Card>
+  <Card title="Request Commands" icon="eye" href="/cli/requests">
+    Inspect and replay requests
+  </Card>
+</CardGroup>

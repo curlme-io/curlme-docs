@@ -1,0 +1,183 @@
+---
+title: "Authentication"
+description: "Understand authentication methods in curlme.io"
+---
+
+## Overview
+
+curlme.io supports multiple authentication methods:
+
+| Method | Use Case | How |
+| ------ | -------- | --- |
+| **OAuth** | Web dashboard | Sign in with GitHub, Google, etc. |
+| **API Keys** | CLI & API | `x-api-key` header |
+| **Session** | Web requests | Automatic via cookies |
+
+## OAuth Authentication
+
+### Supported Providers
+
+- **GitHub** - Recommended for developers
+- **Google** - Personal or workspace accounts
+
+### Signing In
+
+1. Go to [curlme.io/auth/signin](https://curlme.io/auth/signin)
+2. Click your preferred provider
+3. Authorize curlme.io
+4. You're signed in!
+
+### Permissions Requested
+
+We request minimal permissions:
+
+| Provider | Scope | Purpose |
+| -------- | ----- | ------- |
+| GitHub | `read:user`, `user:email` | Identify your account |
+| Google | `email`, `profile` | Identify your account |
+
+<Note>
+  We never request access to your repositories, files, or other private data.
+</Note>
+
+## API Key Authentication
+
+For CLI and programmatic access, use API keys.
+
+### Creating API Keys
+
+1. Go to [curlme.io/account](https://curlme.io/account)
+2. Scroll to **"API Keys"**
+3. Click **"Create Key"**
+4. Enter a name (e.g., "CLI", "CI/CD")
+5. Copy the key immediately
+
+<Warning>
+  API keys are only shown once. Store them securely - you cannot retrieve them later.
+</Warning>
+
+### Using API Keys
+
+#### CLI
+
+```bash
+curlme auth login
+# Enter your API key when prompted
+```
+
+The key is stored securely in your system's configuration directory.
+
+#### API Requests
+
+Include the key in the `x-api-key` header:
+
+```bash
+curl https://curlme.io/api/bins \
+  -H "x-api-key: cm_your_api_key_here"
+```
+
+### Key Format
+
+API keys follow the format:
+
+```
+cm_<64 character hex string>
+```
+
+Example:
+```
+cm_a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6a1b2c3d4e5f6
+```
+
+### Revoking Keys
+
+1. Go to [curlme.io/account](https://curlme.io/account)
+2. Find the key in **"API Keys"**
+3. Click the delete icon
+4. Confirm deletion
+
+The key is immediately invalidated.
+
+## Session Authentication
+
+When using the web dashboard, authentication is handled via HTTP-only cookies.
+
+### Session Properties
+
+- **Duration**: 30 days
+- **Refresh**: Extended on activity
+- **Security**: HTTP-only, Secure, SameSite=Lax
+
+### Signing Out
+
+Click your avatar in the top right and select **"Sign Out"**. This invalidates your session cookie.
+
+## Security Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Rotate Keys Regularly" icon="rotate">
+    Create new keys periodically and delete old ones.
+  </Card>
+  <Card title="Use Specific Keys" icon="key">
+    Create separate keys for different purposes (CLI, CI/CD, scripts).
+  </Card>
+  <Card title="Never Commit Keys" icon="code">
+    Add `.env` to `.gitignore` and use environment variables.
+  </Card>
+  <Card title="Monitor Usage" icon="chart-line">
+    Check the "Last Used" timestamp to detect unauthorized access.
+  </Card>
+</CardGroup>
+
+## Environment Variables
+
+For CI/CD and scripts, use environment variables:
+
+```bash
+export CURLME_API_KEY=cm_your_api_key
+```
+
+The CLI respects this variable automatically.
+
+## Troubleshooting
+
+### "Unauthorized" Error
+
+```json
+{"error": "Unauthorized"}
+```
+
+**Causes:**
+- Missing or invalid API key
+- Expired session
+- Key was revoked
+
+**Solutions:**
+1. Check the `x-api-key` header is set correctly
+2. Verify the key in your account settings
+3. Create a new key if necessary
+
+### "Not authenticated" in CLI
+
+```
+✖ Not authenticated
+Run: curlme auth login
+```
+
+**Solution:**
+```bash
+curlme auth login
+# Enter a valid API key
+```
+
+### Check Current User
+
+Verify your authentication:
+
+```bash
+curlme auth whoami
+```
+
+```
+✔ Logged in as John Doe (john@example.com)
+```

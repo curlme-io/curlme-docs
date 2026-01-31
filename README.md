@@ -1,43 +1,29 @@
-# Mintlify Starter Kit
+# curlme.io Documentation
 
-Use the starter kit to get your docs deployed and ready to customize.
-
-Click the green **Use this template** button at the top of this repo to copy the Mintlify starter kit. The starter kit contains examples with
-
-- Guide pages
-- Navigation
-- Customizations
-- API reference pages
-- Use of popular components
-
-**[Follow the full quickstart guide](https://starter.mintlify.com/quickstart)**
+Welcome to the official documentation repository for [curlme.io](https://curlme.io). This site is built with Mintlify and contains guides, CLI references, and API documentation for our request inspection platform.
 
 ## Development
 
-Install the [Mintlify CLI](https://www.npmjs.com/package/mint) to preview your documentation changes locally. To install, use the following command:
+To preview the documentation locally, you'll need the [Mintlify CLI](https://www.npmjs.com/package/mint).
 
-```
-npm i -g mint
-```
+1. **Install the CLI**:
 
-Run the following command at the root of your documentation, where your `docs.json` is located:
+   ```bash
+   npm i -g mint
+   ```
 
-```
-mint dev
-```
+2. **Start the local server**:
 
-View your local preview at `http://localhost:3000`.
+   Run the following command at the root of this repository:
 
-## Publishing changes
+   ```bash
+   mint dev
+   ```
 
-Install our GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app) to propagate changes from your repo to your deployment. Changes are deployed to production automatically after pushing to the default branch.
+3. **View the preview**:
 
-## Need help?
+   Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-### Troubleshooting
+## Contributing
 
-- If your dev environment isn't running: Run `mint update` to ensure you have the most recent version of the CLI.
-- If a page loads as a 404: Make sure you are running in a folder with a valid `docs.json`.
-
-### Resources
-- [Mintlify documentation](https://mintlify.com/docs)
+Please ensure any changes to the documentation maintain the brand's terminal-first aesthetic. Test your changes locally using `mint dev` before submitting a pull request.

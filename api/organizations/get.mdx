@@ -1,0 +1,74 @@
+---
+title: "Get Organization"
+openapi: "GET /api/organizations/{orgId}"
+description: "Retrieve details for a specific organization"
+---
+
+<ParamField path="orgId" type="string" required>
+  Organization ID
+</ParamField>
+
+## Request
+
+<CodeGroup>
+```bash cURL
+curl https://curlme.io/api/organizations/org_abc123 \
+  -H "x-api-key: cm_your_api_key"
+```
+
+```javascript JavaScript
+const response = await fetch('https://curlme.io/api/organizations/org_abc123', {
+  headers: { 'x-api-key': 'cm_your_api_key' }
+});
+const organization = await response.json();
+```
+
+```python Python
+import requests
+
+response = requests.get(
+    'https://curlme.io/api/organizations/org_abc123',
+    headers={'x-api-key': 'cm_your_api_key'}
+)
+organization = response.json()
+```
+</CodeGroup>
+
+## Response
+
+<ResponseField name="id" type="string">
+  Organization ID
+</ResponseField>
+
+<ResponseField name="name" type="string">
+  Organization name
+</ResponseField>
+
+<ResponseField name="isPersonal" type="boolean">
+  Whether this is a personal organization
+</ResponseField>
+
+<ResponseField name="createdAt" type="string">
+  ISO 8601 timestamp
+</ResponseField>
+
+<ResponseField name="updatedAt" type="string">
+  ISO 8601 timestamp
+</ResponseField>
+
+```json Example Response
+{
+  "id": "org_abc123",
+  "name": "Acme Corp",
+  "isPersonal": false,
+  "createdAt": "2026-01-15T00:00:00.000Z",
+  "updatedAt": "2026-01-30T00:00:00.000Z"
+}
+```
+
+## Errors
+
+| Status | Description |
+| ------ | ----------- |
+| `401` | Unauthorized - Invalid or missing API key |
+| `404` | Organization not found or you're not a member |

@@ -1,0 +1,220 @@
+---
+title: "API Keys"
+description: "Manage API keys for CLI and programmatic access"
+---
+
+## Overview
+
+API keys provide secure authentication for:
+
+- **CLI**: The `curlme` command-line tool
+- **REST API**: Programmatic access to your bins
+- **Integrations**: Third-party tools and scripts
+
+## Key Properties
+
+| Property | Description |
+| -------- | ----------- |
+| **Format** | `cm_<64 hex chars>` |
+| **Prefix** | Always starts with `cm_` |
+| **Length** | 67 characters total |
+| **Scope** | Full account access |
+
+## Creating Keys
+
+### Via Dashboard
+
+1. Navigate to [curlme.io/account](https://curlme.io/account)
+2. Find the **"API Keys"** section
+3. Click **"Create New Key"**
+4. Enter a descriptive name
+5. Click **"Create"**
+6. **Copy the key immediately**
+
+<Warning>
+  The key is only displayed once. If you lose it, you'll need to create a new one.
+</Warning>
+
+### Via API
+
+```bash
+curl -X POST https://curlme.io/api/user/keys \
+  -H "x-api-key: cm_existing_key" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "CI/CD Pipeline"}'
+```
+
+Response:
+```json
+{
+  "id": "key_abc123",
+  "name": "CI/CD Pipeline",
+  "key": "cm_a1b2c3d4e5f6...",
+  "createdAt": "2026-01-31T00:00:00.000Z"
+}
+```
+
+## Listing Keys
+
+### Via Dashboard
+
+Your keys are listed in the **"API Keys"** section of your account page.
+
+### Via API
+
+```bash
+curl https://curlme.io/api/user/keys \
+  -H "x-api-key: cm_your_api_key"
+```
+
+Response:
+```json
+[
+  {
+    "id": "key_abc123",
+    "name": "CLI",
+    "createdAt": "2026-01-15T00:00:00.000Z",
+    "lastUsedAt": "2026-01-31T12:00:00.000Z"
+  },
+  {
+    "id": "key_def456",
+    "name": "GitHub Actions",
+    "createdAt": "2026-01-20T00:00:00.000Z",
+    "lastUsedAt": null
+  }
+]
+```
+
+<Note>
+  For security, the full key value is never returned after creation.
+</Note>
+
+## Using Keys
+
+### HTTP Header
+
+Include the key in the `x-api-key` header:
+
+```bash
+curl https://curlme.io/api/bins \
+  -H "x-api-key: cm_your_api_key"
+```
+
+### CLI Configuration
+
+```bash
+curlme auth login
+```
+
+Enter your key when prompted. It's stored in:
+
+| OS | Location |
+| -- | -------- |
+| macOS | `~/Library/Preferences/curlme-cli-nodejs/config.json` |
+| Linux | `~/.config/curlme-cli-nodejs/config.json` |
+| Windows | `%APPDATA%\curlme-cli-nodejs\config.json` |
+
+### Environment Variable
+
+```bash
+export CURLME_API_KEY=cm_your_api_key
+```
+
+The CLI checks this variable before the stored configuration.
+
+## Revoking Keys
+
+### Via Dashboard
+
+1. Go to [curlme.io/account](https://curlme.io/account)
+2. Find the key to revoke
+3. Click the **trash icon**
+4. Confirm deletion
+
+### Via API
+
+```bash
+curl -X DELETE "https://curlme.io/api/user/keys?id=key_abc123" \
+  -H "x-api-key: cm_your_api_key"
+```
+
+<Warning>
+  Revocation is immediate. Any requests using the revoked key will fail instantly.
+</Warning>
+
+## Key Naming Conventions
+
+Use descriptive names to track key usage:
+
+| Name | Use Case |
+| ---- | -------- |
+| `CLI - MacBook` | Personal CLI on specific machine |
+| `GitHub Actions` | CI/CD pipeline |
+| `Monitoring Script` | Automated health checks |
+| `Development` | Local development |
+
+## Security Best Practices
+
+### Do's
+
+<Check>
+  **Create separate keys** for each application or environment
+</Check>
+
+<Check>
+  **Use environment variables** instead of hardcoding keys
+</Check>
+
+<Check>
+  **Rotate keys periodically** (every 90 days recommended)
+</Check>
+
+<Check>
+  **Delete unused keys** promptly
+</Check>
+
+<Check>
+  **Monitor "Last Used"** timestamps for suspicious activity
+</Check>
+
+### Don'ts
+
+<Warning>
+  **Never commit keys** to version control
+</Warning>
+
+<Warning>
+  **Never share keys** in public channels
+</Warning>
+
+<Warning>
+  **Never use production keys** in development
+</Warning>
+
+## Compromised Keys
+
+If you suspect a key has been compromised:
+
+1. **Revoke immediately** via the dashboard
+2. **Create a new key** for legitimate use
+3. **Update configurations** with the new key
+4. **Review audit logs** for unauthorized actions
+5. **Check bins** for unexpected changes
+
+## Rate Limits
+
+API keys are subject to rate limits:
+
+| Plan | Requests/minute |
+| ---- | --------------- |
+| Free | 60 |
+| Pro | 300 |
+| Team | 1000 |
+
+Rate limit headers are included in responses:
+
+```
+X-RateLimit-Limit: 60
+X-RateLimit-Remaining: 45
+X-RateLimit-Reset: 1706745660
+```

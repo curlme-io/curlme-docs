@@ -1,0 +1,180 @@
+---
+title: "Installation"
+description: "Install the curlme CLI on your system"
+---
+
+## Requirements
+
+- **Node.js** 18.0 or later
+- **npm**, **yarn**, or **pnpm**
+
+Check your Node.js version:
+
+```bash
+node --version
+# v18.0.0 or higher
+```
+
+## Install via npm
+
+```bash
+npm install -g @curlme/cli
+```
+
+## Install via yarn
+
+```bash
+yarn global add @curlme/cli
+```
+
+## Install via pnpm
+
+```bash
+pnpm add -g @curlme/cli
+```
+
+## Verify Installation
+
+```bash
+curlme --version
+```
+
+Expected output:
+```
+1.0.0
+```
+
+## View Help
+
+```bash
+curlme --help
+```
+
+```
+curlme — terminal-first request debugging
+
+COMMANDS
+  listen          Stream requests + interactive shortcuts
+  latest          Show most recent request
+  show <id>       Inspect a specific request
+  replay <id>     Replay a request locally
+  diff <a1> <a2>  Compare two requests
+
+BINS
+  bin create      Create a new bin
+  bin list        List all your bins
+  bin use         Select active bin
+  bin info        Show bin details
+  bin delete      Delete a bin
+
+USAGE
+  curlme > <command>
+```
+
+## Update
+
+To update to the latest version:
+
+```bash
+npm update -g @curlme/cli
+```
+
+## Uninstall
+
+```bash
+npm uninstall -g @curlme/cli
+```
+
+This removes the CLI but preserves your configuration. To also remove configuration:
+
+<Tabs>
+  <Tab title="macOS/Linux">
+    ```bash
+    rm -rf ~/.config/curlme-cli-nodejs
+    ```
+  </Tab>
+  <Tab title="Windows">
+    ```powershell
+    Remove-Item -Recurse "$env:APPDATA\curlme-cli-nodejs"
+    ```
+  </Tab>
+</Tabs>
+
+## Troubleshooting
+
+### "command not found"
+
+The global npm directory may not be in your PATH.
+
+<Tabs>
+  <Tab title="macOS/Linux">
+    Find npm's global bin directory:
+    ```bash
+    npm config get prefix
+    ```
+    
+    Add to your shell profile (`~/.bashrc`, `~/.zshrc`, etc.):
+    ```bash
+    export PATH="$(npm config get prefix)/bin:$PATH"
+    ```
+    
+    Reload your shell:
+    ```bash
+    source ~/.zshrc
+    ```
+  </Tab>
+  <Tab title="Windows">
+    npm's global directory should be automatically in PATH. Try:
+    ```powershell
+    npm config get prefix
+    ```
+    
+    Add this path to your system PATH environment variable.
+  </Tab>
+</Tabs>
+
+### Permission Errors (Linux/macOS)
+
+If you see `EACCES` errors:
+
+**Option 1: Use a Node version manager** (recommended)
+
+```bash
+# Install nvm
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+
+# Install and use Node
+nvm install node
+nvm use node
+
+# Now install curlme
+npm install -g @curlme/cli
+```
+
+**Option 2: Change npm's default directory**
+
+```bash
+mkdir ~/.npm-global
+npm config set prefix '~/.npm-global'
+echo 'export PATH=~/.npm-global/bin:$PATH' >> ~/.bashrc
+source ~/.bashrc
+npm install -g @curlme/cli
+```
+
+### Proxy Issues
+
+If behind a corporate proxy:
+
+```bash
+npm config set proxy http://proxy.company.com:8080
+npm config set https-proxy http://proxy.company.com:8080
+npm install -g @curlme/cli
+```
+
+## Next Steps
+
+After installation, [authenticate](/cli/authentication) with your API key:
+
+```bash
+curlme auth login
+```

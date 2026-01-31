@@ -1,0 +1,181 @@
+---
+title: "Custom Responses"
+description: "Configure exactly what your bin returns to incoming requests"
+---
+
+## Overview
+
+By default, bins return a simple JSON response:
+
+```json
+{
+  "status": "ok",
+  "message": "Request received"
+}
+```
+
+You can customize every aspect of the response including status code, headers, body, and content type.
+
+## Configuration
+
+### Via Dashboard
+
+1. Open your bin in the dashboard
+2. Click the **"Response"** tab
+3. Configure your settings
+4. Click **"Save"**
+
+### Via API
+
+```bash
+curl -X PATCH https://curlme.io/api/bins/abc123 \
+  -H "x-api-key: cm_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "customResponse": {
+      "statusCode": 201,
+      "headers": {
+        "X-Custom-Header": "value"
+      },
+      "body": "{\"received\": true}",
+      "contentType": "application/json"
+    }
+  }'
+```
+
+## Response Options
+
+### Status Code
+
+Set any valid HTTP status code:
+
+| Code | Use Case |
+| ---- | -------- |
+| `200` | Success (default) |
+| `201` | Created |
+| `202` | Accepted |
+| `204` | No Content |
+| `400` | Bad Request |
+| `401` | Unauthorized |
+| `404` | Not Found |
+| `500` | Internal Server Error |
+
+### Headers
+
+Add custom response headers:
+
+```json
+{
+  "headers": {
+    "X-Request-Id": "abc123",
+    "X-RateLimit-Remaining": "99",
+    "Access-Control-Allow-Origin": "*"
+  }
+}
+```
+
+### Content Type
+
+Supported content types:
+
+- `application/json` (default)
+- `text/plain`
+- `text/html`
+- `application/xml`
+- `text/xml`
+
+### Body
+
+The response body can be any string. For JSON, ensure it's valid:
+
+```json
+{
+  "body": "{\"status\": \"success\", \"id\": \"12345\"}"
+}
+```
+
+## Examples
+
+### Webhook Acknowledgment
+
+Return what services like Stripe expect:
+
+```json
+{
+  "statusCode": 200,
+  "headers": {},
+  "body": "",
+  "contentType": "text/plain"
+}
+```
+
+### Simulating an API
+
+Return realistic API responses for testing:
+
+```json
+{
+  "statusCode": 201,
+  "headers": {
+    "Location": "/api/resources/12345"
+  },
+  "body": "{\"id\": \"12345\", \"created\": true}",
+  "contentType": "application/json"
+}
+```
+
+### Error Responses
+
+Test error handling in your integration:
+
+```json
+{
+  "statusCode": 429,
+  "headers": {
+    "Retry-After": "60"
+  },
+  "body": "{\"error\": \"rate_limit_exceeded\", \"message\": \"Too many requests\"}",
+  "contentType": "application/json"
+}
+```
+
+### HTML Response
+
+Return HTML for browser testing:
+
+```json
+{
+  "statusCode": 200,
+  "headers": {},
+  "body": "<!DOCTYPE html><html><body><h1>Success!</h1></body></html>",
+  "contentType": "text/html"
+}
+```
+
+### XML Response
+
+For SOAP or legacy XML APIs:
+
+```json
+{
+  "statusCode": 200,
+  "headers": {},
+  "body": "<?xml version=\"1.0\"?><response><status>ok</status></response>",
+  "contentType": "application/xml"
+}
+```
+
+## Best Practices
+
+<Tip>
+  Match the response your actual API would return. This helps catch integration issues early.
+</Tip>
+
+1. **Use appropriate status codes**: Don't always return 200
+2. **Include realistic headers**: Add headers your API would return
+3. **Validate JSON bodies**: Ensure your JSON is valid before saving
+4. **Test edge cases**: Configure error responses for testing
+
+## Dynamic Responses
+
+For conditional responses based on request content, use [Response Rules](/features/response-rules).

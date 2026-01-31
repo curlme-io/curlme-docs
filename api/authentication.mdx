@@ -1,0 +1,198 @@
+---
+title: "API Authentication"
+description: "Authenticate your API requests"
+---
+
+## API Keys
+
+All API requests require authentication using an API key.
+
+### Getting an API Key
+
+1. Sign in at [curlme.io](https://curlme.io/auth/signin)
+2. Go to [Account Settings](https://curlme.io/account)
+3. Click **"Create New Key"**
+4. Copy the key (shown only once)
+
+### Using the API Key
+
+Include the key in the `x-api-key` header:
+
+```bash
+curl https://curlme.io/api/bins \
+  -H "x-api-key: cm_your_api_key"
+```
+
+## Key Format
+
+API keys follow the format:
+
+```
+cm_<64 hexadecimal characters>
+```
+
+Example:
+```
+cm_a1b2c3d4e5f6789012345678901234567890123456789012345678901234
+```
+
+## Error Responses
+
+### Missing API Key
+
+```bash
+curl https://curlme.io/api/bins
+```
+
+Response `401`:
+```json
+{
+  "error": "Unauthorized"
+}
+```
+
+### Invalid API Key
+
+```bash
+curl https://curlme.io/api/bins \
+  -H "x-api-key: cm_invalid_key"
+```
+
+Response `401`:
+```json
+{
+  "error": "Unauthorized"
+}
+```
+
+## Protected Bins
+
+Some bins require a password in addition to authentication.
+
+### Password Required Response
+
+```json
+{
+  "error": "Password required",
+  "passwordRequired": true
+}
+```
+
+### Providing Password
+
+Include the `x-bin-password` header:
+
+```bash
+curl https://curlme.io/api/bins/abc123 \
+  -H "x-api-key: cm_your_api_key" \
+  -H "x-bin-password: bin_secret_password"
+```
+
+## Code Examples
+
+<Tabs>
+  <Tab title="cURL">
+    ```bash
+    curl https://curlme.io/api/bins \
+      -H "x-api-key: cm_your_api_key"
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```javascript
+    const API_KEY = 'cm_your_api_key';
+    
+    const response = await fetch('https://curlme.io/api/bins', {
+      headers: {
+        'x-api-key': API_KEY
+      }
+    });
+    
+    if (response.status === 401) {
+      throw new Error('Invalid API key');
+    }
+    
+    const bins = await response.json();
+    ```
+  </Tab>
+  <Tab title="Python">
+    ```python
+    import requests
+    
+    API_KEY = 'cm_your_api_key'
+    
+    response = requests.get(
+        'https://curlme.io/api/bins',
+        headers={'x-api-key': API_KEY}
+    )
+    
+    if response.status_code == 401:
+        raise Exception('Invalid API key')
+    
+    bins = response.json()
+    ```
+  </Tab>
+  <Tab title="Go">
+    ```go
+    package main
+
+    import (
+        "net/http"
+        "io"
+    )
+
+    func main() {
+        client := &http.Client{}
+        req, _ := http.NewRequest("GET", "https://curlme.io/api/bins", nil)
+        req.Header.Set("x-api-key", "cm_your_api_key")
+        
+        resp, _ := client.Do(req)
+        defer resp.Body.Close()
+        
+        if resp.StatusCode == 401 {
+            panic("Invalid API key")
+        }
+        
+        body, _ := io.ReadAll(resp.Body)
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Security Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Use Environment Variables" icon="leaf">
+    Never hardcode API keys in your source code.
+  </Card>
+  <Card title="Separate Keys" icon="key">
+    Use different keys for development, staging, and production.
+  </Card>
+  <Card title="Rotate Regularly" icon="rotate">
+    Create new keys periodically and revoke old ones.
+  </Card>
+  <Card title="Minimal Scope" icon="shield">
+    Use keys only where needed; avoid sharing.
+  </Card>
+</CardGroup>
+
+### Environment Variables
+
+```bash
+# Set in your environment
+export CURLME_API_KEY=cm_your_api_key
+```
+
+```javascript
+// Use in code
+const apiKey = process.env.CURLME_API_KEY;
+```
+
+### .gitignore
+
+Ensure API keys aren't committed:
+
+```gitignore
+.env
+.env.local
+.env.*.local
+```

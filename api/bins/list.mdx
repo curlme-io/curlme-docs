@@ -1,0 +1,133 @@
+---
+title: "List Bins"
+openapi: "GET /api/bins"
+description: "Retrieve all bins accessible to the authenticated user"
+---
+
+<ParamField query="orgId" type="string">
+  Filter bins by organization ID. If not provided, returns all accessible bins.
+</ParamField>
+
+## Request
+
+<CodeGroup>
+```bash cURL
+curl https://curlme.io/api/bins \
+  -H "x-api-key: cm_your_api_key"
+```
+
+```bash cURL (with org filter)
+curl "https://curlme.io/api/bins?orgId=org_abc123" \
+  -H "x-api-key: cm_your_api_key"
+```
+
+```javascript JavaScript
+const response = await fetch('https://curlme.io/api/bins', {
+  headers: { 'x-api-key': 'cm_your_api_key' }
+});
+const bins = await response.json();
+```
+
+```python Python
+import requests
+
+response = requests.get(
+    'https://curlme.io/api/bins',
+    headers={'x-api-key': 'cm_your_api_key'}
+)
+bins = response.json()
+```
+</CodeGroup>
+
+## Response
+
+<ResponseField name="array" type="Bin[]">
+  <Expandable title="Bin object">
+    <ResponseField name="id" type="string">
+      Internal bin ID
+    </ResponseField>
+    <ResponseField name="publicId" type="string">
+      Public identifier used in URLs
+    </ResponseField>
+    <ResponseField name="name" type="string">
+      Bin name
+    </ResponseField>
+    <ResponseField name="createdAt" type="number">
+      Unix timestamp (milliseconds)
+    </ResponseField>
+    <ResponseField name="requestCount" type="number">
+      Number of captured requests
+    </ResponseField>
+    <ResponseField name="description" type="string">
+      Optional description
+    </ResponseField>
+    <ResponseField name="lastRequestAt" type="number">
+      Timestamp of most recent request
+    </ResponseField>
+    <ResponseField name="userId" type="string">
+      Owner user ID (if personal bin)
+    </ResponseField>
+    <ResponseField name="organizationId" type="string">
+      Organization ID (if org bin)
+    </ResponseField>
+    <ResponseField name="organizationName" type="string">
+      Organization name
+    </ResponseField>
+    <ResponseField name="isTemporary" type="boolean">
+      Whether the bin is temporary
+    </ResponseField>
+    <ResponseField name="passwordProtected" type="boolean">
+      Whether password is required
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+```json Example Response
+[
+  {
+    "id": "clx1234567890abcdef",
+    "publicId": "abc123xyz",
+    "name": "Stripe Webhooks",
+    "createdAt": 1706745600000,
+    "requestCount": 42,
+    "description": "Production Stripe events",
+    "lastRequestAt": 1706832000000,
+    "userId": "usr_abc123",
+    "organizationId": "org_def456",
+    "organizationName": "My Team",
+    "isTemporary": false,
+    "passwordProtected": false,
+    "customResponse": {
+      "statusCode": 200,
+      "headers": {},
+      "body": "{\"status\": \"ok\"}",
+      "contentType": "application/json"
+    },
+    "rules": []
+  },
+  {
+    "id": "clx0987654321fedcba",
+    "publicId": "def456uvw",
+    "name": "GitHub Actions",
+    "createdAt": 1706659200000,
+    "requestCount": 15,
+    "userId": "usr_abc123",
+    "organizationId": null,
+    "isTemporary": false,
+    "passwordProtected": true,
+    "customResponse": {
+      "statusCode": 200,
+      "headers": {},
+      "body": "",
+      "contentType": "text/plain"
+    },
+    "rules": []
+  }
+]
+```
+
+## Errors
+
+| Status | Description |
+| ------ | ----------- |
+| `401` | Unauthorized - Invalid or missing API key |

@@ -1,0 +1,240 @@
+---
+title: "Update Bin"
+openapi: "PATCH /api/bins/{binId}"
+description: "Update bin settings and configuration"
+---
+
+<ParamField path="binId" type="string" required>
+  The bin's public ID or internal ID
+</ParamField>
+
+<ParamField header="x-bin-password" type="string">
+  Current password for protected bins
+</ParamField>
+
+<ParamField body="name" type="string">
+  New name for the bin
+</ParamField>
+
+<ParamField body="description" type="string">
+  New description
+</ParamField>
+
+<ParamField body="retentionHours" type="number">
+  Request retention period in hours (0 = indefinite)
+</ParamField>
+
+<ParamField body="password" type="string">
+  Set a new password. Empty string removes protection.
+</ParamField>
+
+<ParamField body="customResponse" type="object">
+  Default response configuration
+  <Expandable>
+    <ParamField body="statusCode" type="number">
+      HTTP status code
+    </ParamField>
+    <ParamField body="headers" type="object">
+      Response headers
+    </ParamField>
+    <ParamField body="body" type="string">
+      Response body
+    </ParamField>
+    <ParamField body="contentType" type="string">
+      Content-Type header
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="redactionRules" type="array">
+  Rules for redacting sensitive data
+  <Expandable title="Redaction rule">
+    <ParamField body="type" type="string">
+      `header`, `query`, or `body`
+    </ParamField>
+    <ParamField body="pattern" type="string">
+      Key name or regex pattern
+    </ParamField>
+    <ParamField body="replacement" type="string">
+      Replacement text (default: `[REDACTED]`)
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+## Request
+
+<CodeGroup>
+```bash cURL (update name)
+curl -X PATCH https://curlme.io/api/bins/abc123xyz \
+  -H "x-api-key: cm_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Production Webhooks"}'
+```
+
+```bash cURL (update response)
+curl -X PATCH https://curlme.io/api/bins/abc123xyz \
+  -H "x-api-key: cm_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "customResponse": {
+      "statusCode": 201,
+      "headers": {"X-Custom": "header"},
+      "body": "{\"created\": true}",
+      "contentType": "application/json"
+    }
+  }'
+```
+
+```bash cURL (set password)
+curl -X PATCH https://curlme.io/api/bins/abc123xyz \
+  -H "x-api-key: cm_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{"password": "mysecretpassword"}'
+```
+
+```bash cURL (remove password)
+curl -X PATCH https://curlme.io/api/bins/abc123xyz \
+  -H "x-api-key: cm_your_api_key" \
+  -H "x-bin-password: current_password" \
+  -H "Content-Type: application/json" \
+  -d '{"password": ""}'
+```
+
+```javascript JavaScript
+const response = await fetch('https://curlme.io/api/bins/abc123xyz', {
+  method: 'PATCH',
+  headers: {
+    'x-api-key': 'cm_your_api_key',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    name: 'Updated Bin Name',
+    customResponse: {
+      statusCode: 200,
+      headers: {},
+      body: '{"updated": true}',
+      contentType: 'application/json'
+    }
+  })
+});
+const bin = await response.json();
+```
+
+```python Python
+import requests
+
+response = requests.patch(
+    'https://curlme.io/api/bins/abc123xyz',
+    headers={
+        'x-api-key': 'cm_your_api_key',
+        'Content-Type': 'application/json'
+    },
+    json={
+        'name': 'Updated Bin Name',
+        'retentionHours': 72
+    }
+)
+bin = response.json()
+```
+</CodeGroup>
+
+## Response
+
+Returns the updated bin object (same structure as [Get Bin](/api/bins/get)).
+
+```json Example Response
+{
+  "id": "clx1234567890abcdef",
+  "publicId": "abc123xyz",
+  "name": "Production Webhooks",
+  "createdAt": 1706745600000,
+  "description": "Updated description",
+  "requestCount": 42,
+  "customResponse": {
+    "statusCode": 201,
+    "headers": {"X-Custom": "header"},
+    "body": "{\"created\": true}",
+    "contentType": "application/json"
+  },
+  "rules": [],
+  "userId": "usr_abc123",
+  "organizationId": "org_def456",
+  "isTemporary": false,
+  "retentionHours": 72,
+  "passwordProtected": true
+}
+```
+
+## Examples
+
+### Configure Custom Response
+
+```json
+{
+  "customResponse": {
+    "statusCode": 202,
+    "headers": {
+      "X-Request-Id": "12345",
+      "X-Processed": "true"
+    },
+    "body": "{\"accepted\": true, \"processingId\": \"abc\"}",
+    "contentType": "application/json"
+  }
+}
+```
+
+### Set Data Retention
+
+```json
+{
+  "retentionHours": 168
+}
+```
+
+Common values:
+- `24` - 1 day
+- `168` - 1 week
+- `720` - 30 days
+- `0` - Indefinite
+
+### Configure Redaction Rules
+
+```json
+{
+  "redactionRules": [
+    {
+      "type": "header",
+      "pattern": "authorization"
+    },
+    {
+      "type": "body",
+      "pattern": "\"password\":\\s*\"[^\"]*\"",
+      "replacement": "\"password\": \"[REDACTED]\""
+    }
+  ]
+}
+```
+
+## Errors
+
+| Status | Description |
+| ------ | ----------- |
+| `400` | Invalid request body |
+| `401` | Password required for protected bin |
+| `403` | Permission denied |
+| `404` | Bin not found |
+
+## Audit Logging
+
+For organization bins, updates are recorded in the audit log:
+
+```json
+{
+  "action": "UPDATE_BIN_SETTINGS",
+  "targetType": "BIN",
+  "targetId": "abc123xyz",
+  "details": {
+    "name": "New Name"
+  }
+}
+```

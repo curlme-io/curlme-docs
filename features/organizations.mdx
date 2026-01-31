@@ -1,0 +1,232 @@
+---
+title: "Organizations"
+description: "Collaborate with your team using shared organization bins"
+---
+
+## Overview
+
+Organizations enable team collaboration by providing:
+
+- **Shared bins**: All team members can access organization bins
+- **Role-based access**: Control who can do what
+- **Audit logs**: Track changes across the organization
+- **Centralized management**: Manage bins and members in one place
+
+## Personal Organization
+
+Every user automatically gets a **Personal Organization** when they sign up. This is where your individual bins live by default.
+
+<Note>
+  Your personal organization cannot be deleted. It's automatically created when you sign in.
+</Note>
+
+## Creating Organizations
+
+### Via Dashboard
+
+1. Go to [curlme.io/dashboard](https://curlme.io/dashboard)
+2. Click the organization dropdown
+3. Select **"Create Organization"**
+4. Enter a name and click **"Create"**
+
+### Via API
+
+```bash
+curl -X POST https://curlme.io/api/organizations \
+  -H "x-api-key: cm_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "My Team"}'
+```
+
+Response:
+```json
+{
+  "id": "org_abc123",
+  "name": "My Team",
+  "isPersonal": false,
+  "createdAt": "2026-01-31T00:00:00.000Z"
+}
+```
+
+## Roles & Permissions
+
+| Role | View Bins | Create Bins | Manage Bins | Manage Members | Delete Org |
+| ---- | --------- | ----------- | ----------- | -------------- | ---------- |
+| Member | ✅ | ✅ | ❌ | ❌ | ❌ |
+| Admin | ✅ | ✅ | ✅ | ✅ | ❌ |
+| Owner | ✅ | ✅ | ✅ | ✅ | ✅ |
+
+### Role Descriptions
+
+<AccordionGroup>
+  <Accordion title="Owner" icon="crown">
+    Full control over the organization. Can delete the organization and manage all settings. There must always be at least one owner.
+  </Accordion>
+  <Accordion title="Admin" icon="user-shield">
+    Can manage bins, invite/remove members, and configure organization settings. Cannot delete the organization.
+  </Accordion>
+  <Accordion title="Member" icon="user">
+    Can view all organization bins and create new ones. Cannot modify bins created by others or manage members.
+  </Accordion>
+</AccordionGroup>
+
+## Managing Members
+
+### Inviting Members
+
+```bash
+curl -X POST https://curlme.io/api/organizations/org_abc123/invites \
+  -H "x-api-key: cm_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "teammate@example.com",
+    "role": "MEMBER"
+  }'
+```
+
+### Listing Members
+
+```bash
+curl https://curlme.io/api/organizations/org_abc123/members \
+  -H "x-api-key: cm_your_api_key"
+```
+
+Response:
+```json
+[
+  {
+    "id": "mem_123",
+    "userId": "usr_456",
+    "role": "OWNER",
+    "user": {
+      "name": "John Doe",
+      "email": "john@example.com"
+    }
+  },
+  {
+    "id": "mem_789",
+    "userId": "usr_012",
+    "role": "MEMBER",
+    "user": {
+      "name": "Jane Smith",
+      "email": "jane@example.com"
+    }
+  }
+]
+```
+
+### Updating Roles
+
+```bash
+curl -X PATCH https://curlme.io/api/organizations/org_abc123/members/mem_789 \
+  -H "x-api-key: cm_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{"role": "ADMIN"}'
+```
+
+### Removing Members
+
+```bash
+curl -X DELETE https://curlme.io/api/organizations/org_abc123/members/mem_789 \
+  -H "x-api-key: cm_your_api_key"
+```
+
+## Organization Bins
+
+### Creating Bins in an Organization
+
+```bash
+curl -X POST https://curlme.io/api/bins \
+  -H "x-api-key: cm_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Team Webhooks",
+    "organizationId": "org_abc123"
+  }'
+```
+
+### Listing Organization Bins
+
+```bash
+curl "https://curlme.io/api/bins?orgId=org_abc123" \
+  -H "x-api-key: cm_your_api_key"
+```
+
+### Moving Bins Between Organizations
+
+Currently, bins cannot be moved between organizations. You would need to:
+1. Export requests from the original bin
+2. Create a new bin in the target organization
+3. Delete the original bin
+
+## Audit Logs
+
+Track all changes within your organization:
+
+```bash
+curl https://curlme.io/api/organizations/org_abc123/audit-logs \
+  -H "x-api-key: cm_your_api_key"
+```
+
+Response:
+```json
+[
+  {
+    "id": "log_123",
+    "action": "UPDATE_BIN_SETTINGS",
+    "targetType": "BIN",
+    "targetId": "bin_456",
+    "userId": "usr_789",
+    "timestamp": "2026-01-31T12:00:00.000Z",
+    "details": {
+      "name": "Updated Webhook Bin"
+    }
+  }
+]
+```
+
+### Tracked Actions
+
+| Action | Description |
+| ------ | ----------- |
+| `CREATE_BIN` | New bin created |
+| `UPDATE_BIN_SETTINGS` | Bin configuration changed |
+| `DELETE_BIN` | Bin deleted |
+| `CREATE_RULE` | Response rule added |
+| `UPDATE_RULE` | Response rule modified |
+| `DELETE_RULE` | Response rule removed |
+| `INVITE_MEMBER` | New member invited |
+| `REMOVE_MEMBER` | Member removed |
+| `UPDATE_ROLE` | Member role changed |
+
+## Deleting Organizations
+
+<Warning>
+  Deleting an organization permanently removes all bins, requests, and member associations. This cannot be undone.
+</Warning>
+
+Only the **Owner** can delete an organization:
+
+```bash
+curl -X DELETE https://curlme.io/api/organizations/org_abc123 \
+  -H "x-api-key: cm_your_api_key"
+```
+
+<Note>
+  You cannot delete your personal organization.
+</Note>
+
+## Switching Organizations
+
+### In Dashboard
+
+Use the organization dropdown in the header to switch between organizations.
+
+### In CLI
+
+The CLI uses your default organization. To work with a specific organization's bins:
+
+```bash
+# List bins for a specific organization
+curlme bin list --org org_abc123
+```

@@ -1,0 +1,118 @@
+---
+title: "Delete Bin"
+openapi: "DELETE /api/bins/{binId}"
+description: "Delete a bin or clear its requests"
+---
+
+<ParamField path="binId" type="string" required>
+  The bin's public ID or internal ID
+</ParamField>
+
+<ParamField query="clearRequests" type="boolean">
+  If `true`, only clears requests without deleting the bin
+</ParamField>
+
+## Request
+
+<CodeGroup>
+```bash cURL (delete bin)
+curl -X DELETE https://curlme.io/api/bins/abc123xyz \
+  -H "x-api-key: cm_your_api_key"
+```
+
+```bash cURL (clear requests only)
+curl -X DELETE "https://curlme.io/api/bins/abc123xyz?clearRequests=true" \
+  -H "x-api-key: cm_your_api_key"
+```
+
+```javascript JavaScript
+// Delete bin
+const response = await fetch('https://curlme.io/api/bins/abc123xyz', {
+  method: 'DELETE',
+  headers: { 'x-api-key': 'cm_your_api_key' }
+});
+
+// Clear requests only
+const response = await fetch('https://curlme.io/api/bins/abc123xyz?clearRequests=true', {
+  method: 'DELETE',
+  headers: { 'x-api-key': 'cm_your_api_key' }
+});
+```
+
+```python Python
+import requests
+
+# Delete bin
+response = requests.delete(
+    'https://curlme.io/api/bins/abc123xyz',
+    headers={'x-api-key': 'cm_your_api_key'}
+)
+
+# Clear requests only
+response = requests.delete(
+    'https://curlme.io/api/bins/abc123xyz',
+    params={'clearRequests': 'true'},
+    headers={'x-api-key': 'cm_your_api_key'}
+)
+```
+</CodeGroup>
+
+## Response
+
+```json
+{
+  "success": true
+}
+```
+
+## Operations
+
+### Delete Bin
+
+Permanently deletes the bin and all its requests:
+
+```bash
+curl -X DELETE https://curlme.io/api/bins/abc123xyz \
+  -H "x-api-key: cm_your_api_key"
+```
+
+<Warning>
+  This action is irreversible. All captured requests are permanently lost.
+</Warning>
+
+### Clear Requests Only
+
+Removes all requests but keeps the bin:
+
+```bash
+curl -X DELETE "https://curlme.io/api/bins/abc123xyz?clearRequests=true" \
+  -H "x-api-key: cm_your_api_key"
+```
+
+This is useful when you want to:
+- Reset a bin for new testing
+- Clear sensitive data while keeping the endpoint active
+- Start fresh without creating a new bin URL
+
+## Errors
+
+| Status | Description |
+| ------ | ----------- |
+| `401` | Unauthorized - Invalid or missing API key |
+| `403` | Permission denied - Not your bin |
+| `404` | Bin not found |
+
+## Permissions
+
+- You can only delete bins you own
+- Organization members can delete organization bins based on their role
+- Temporary bins can be deleted by anyone with the ID
+
+## Related
+
+After deleting a bin, the webhook URL becomes inactive:
+
+```bash
+# This will return 404 after deletion
+curl https://curlme.io/h/abc123xyz
+```

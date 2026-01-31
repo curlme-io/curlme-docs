@@ -1,0 +1,281 @@
+---
+title: "Bin Commands"
+description: "Create and manage request bins from the CLI"
+---
+
+## Overview
+
+The `bin` command group manages your request bins. You can list, create, select, inspect, and delete bins.
+
+## bin list
+
+List all your bins:
+
+```bash
+curlme bin list
+```
+
+Alias: `curlme bin ls`
+
+### Output
+
+```
+Bins
+  → abc123xyz            Stripe Webhooks       42 reqs
+    def456uvw            GitHub Actions        15 reqs
+    ghi789rst             Development           3 reqs
+```
+
+The `→` indicates the active bin.
+
+### Options
+
+| Option | Description |
+| ------ | ----------- |
+| `--json` | Output in JSON format |
+
+### JSON Output
+
+```bash
+curlme bin list --json
+```
+
+```json
+[
+  {
+    "id": "clx123...",
+    "publicId": "abc123xyz",
+    "name": "Stripe Webhooks",
+    "requestCount": 42
+  }
+]
+```
+
+---
+
+## bin create
+
+Create a new request bin:
+
+```bash
+curlme bin create [name]
+```
+
+### Arguments
+
+| Argument | Description | Default |
+| -------- | ----------- | ------- |
+| `name` | Bin name | Auto-generated |
+
+### Examples
+
+```bash
+# Create with custom name
+curlme bin create stripe-webhooks
+```
+
+```bash
+# Create with auto-generated name
+curlme bin create
+```
+
+### Output
+
+```
+➜ Bin created
+
+  ID        abc123xyz
+  Hook      https://curlme.io/h/abc123xyz
+  Inspect   curlme listen
+```
+
+<Note>
+  The newly created bin is automatically set as the active bin.
+</Note>
+
+---
+
+## bin use
+
+Set the active bin for subsequent commands:
+
+```bash
+curlme bin use [id]
+```
+
+### Arguments
+
+| Argument | Description |
+| -------- | ----------- |
+| `id` | Bin public ID (optional) |
+
+### Interactive Selection
+
+If no ID is provided, an interactive menu appears:
+
+```bash
+curlme bin use
+```
+
+```
+? Select a bin to use:
+❯ Stripe Webhooks (abc123xyz)
+  GitHub Actions (def456uvw)
+  Development (ghi789rst)
+```
+
+### Direct Selection
+
+```bash
+curlme bin use abc123xyz
+```
+
+```
+➜ Active bin set to abc123xyz
+```
+
+---
+
+## bin info
+
+Show detailed information about a bin:
+
+```bash
+curlme bin info [id]
+```
+
+### Arguments
+
+| Argument | Description | Default |
+| -------- | ----------- | ------- |
+| `id` | Bin public ID | Active bin |
+
+### Output
+
+```
+Bin Info (active)
+
+  Name      Stripe Webhooks
+  ID        abc123xyz
+  Hooks     42 received
+  URL       https://curlme.io/bin/abc123xyz
+  Endpoint  https://curlme.io/h/abc123xyz
+  Link      curlme://bin/abc123xyz (app link)
+```
+
+### Fields
+
+| Field | Description |
+| ----- | ----------- |
+| Name | Human-readable bin name |
+| ID | Public identifier used in URLs |
+| Hooks | Number of requests received |
+| URL | Dashboard URL for the bin |
+| Endpoint | Webhook URL to receive requests |
+| Link | Deep link (for future app support) |
+
+---
+
+## bin delete
+
+Delete a bin and all its requests:
+
+```bash
+curlme bin delete [id]
+```
+
+### Arguments
+
+| Argument | Description | Default |
+| -------- | ----------- | ------- |
+| `id` | Bin public ID | Active bin |
+
+### Confirmation
+
+You'll be prompted to confirm:
+
+```bash
+curlme bin delete abc123xyz
+```
+
+```
+? Are you sure you want to delete bin abc123xyz? (y/N)
+```
+
+### Output
+
+```
+✔ Bin deleted
+```
+
+<Warning>
+  Deletion is permanent. All captured requests are lost.
+</Warning>
+
+---
+
+## Active Bin
+
+Many commands default to the "active" bin. Set it with:
+
+```bash
+curlme bin use abc123xyz
+```
+
+Check the current active bin:
+
+```bash
+curlme bin list
+```
+
+The active bin is marked with `→`.
+
+### Commands Using Active Bin
+
+These commands use the active bin if no ID is specified:
+
+- `curlme listen`
+- `curlme latest`
+- `curlme show`
+- `curlme replay`
+- `curlme diff`
+- `curlme export`
+- `curlme open`
+- `curlme bin info`
+- `curlme bin delete`
+
+---
+
+## Examples
+
+### Complete Workflow
+
+```bash
+# Create a new bin
+curlme bin create my-webhook
+
+# View the hook URL
+curlme bin info
+
+# Start listening
+curlme listen
+
+# (In another terminal) Send a test request
+curl -X POST https://curlme.io/h/abc123xyz -d '{"test": true}'
+
+# Later, delete the bin
+curlme bin delete
+```
+
+### Scripting
+
+```bash
+# Create bin and capture the ID
+BIN_ID=$(curlme bin create test-bin --json | jq -r '.publicId')
+
+# Use in webhook URL
+echo "Send requests to: https://curlme.io/h/$BIN_ID"
+
+# Clean up when done
+curlme bin delete $BIN_ID
+```
