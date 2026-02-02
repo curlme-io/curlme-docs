@@ -1,6 +1,8 @@
 # curlme.io Documentation
 
-Welcome to the official documentation repository for [curlme.io](https://curlme.io). This site is built with Mintlify and contains guides, CLI references, and API documentation for our request inspection platform.
+## Terminal-first HTTP request debugging
+
+Official documentation for [curlme.io](https://curlme.io) - a terminal-first HTTP request debugging tool. This site contains guides, CLI references, and API documentation.
 
 ## Development
 
